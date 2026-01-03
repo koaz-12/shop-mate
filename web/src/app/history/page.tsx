@@ -35,7 +35,7 @@ export default function HistoryPage() {
 
     const supabase = createClient();
     const { household, user, items: activeItems, addItem, currentList } = useStore(); // Get active items
-    const { softDeleteItem } = useItems();
+    const { softDeleteItem, addNewItem } = useItems();
 
     useEffect(() => {
         if (!household) return;
@@ -159,9 +159,7 @@ export default function HistoryPage() {
             is_completed: false
         };
 
-        // Optimistic via store handling ideally, but simple insert works
-        const { data, error } = await supabase.from('items' as any).insert(newItem as any).select().single();
-        if (data) addItem(data);
+        await addNewItem(newItem);
     };
 
     // Filter logic

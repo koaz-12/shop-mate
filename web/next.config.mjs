@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 24: Deployment Trigger for Offline Sync Types Fix
+// Cache Bust 25: Deployment Trigger for History Page Sync Fix
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
