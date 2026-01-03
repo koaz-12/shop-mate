@@ -62,12 +62,21 @@ export default function LoginPage() {
 
     return (
         <div className="flex min-h-screen flex-col items-center justify-center p-6 bg-slate-50">
-            <div className="mb-8 flex flex-col items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg">
-                    <ShoppingCart size={32} />
+            {/* Back Button */}
+            <div className="absolute top-6 left-6">
+                <Button variant="ghost" onClick={() => router.push('/')} className="text-slate-500 hover:text-slate-900">
+                    ← Volver
+                </Button>
+            </div>
+
+            <div className="mb-8 flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-500">
+                <div className="bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl p-4 text-white shadow-xl shadow-emerald-200">
+                    <ShoppingCart size={40} strokeWidth={2.5} />
                 </div>
-                <h1 className="text-3xl font-bold tracking-tight text-slate-900">ShopMate</h1>
-                <p className="text-center text-slate-500">Lista de compras familiar colaborativa.</p>
+                <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
+                    ShopMate
+                </h1>
+                <p className="text-center text-slate-500 font-medium">Lista de compras familiar colaborativa.</p>
             </div>
 
             <div className="w-full max-w-sm space-y-4">
