@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 
 export function useRealtimeSync() {
-    const supabase = useMemo(() => createClient(), []);
+    const supabase = createClient();
     const { household, addItem, updateItem, removeItem, setConnectionStatus } = useStore();
     const householdId = household?.id;
 
@@ -25,6 +25,7 @@ export function useRealtimeSync() {
                 },
                 (payload) => {
                     console.log('Realtime change (items):', payload);
+                    setConnectionStatus('connected'); // Reinforce connected state on event
 
                     if (payload.eventType === 'INSERT') {
                         addItem(payload.new as any);
@@ -41,19 +42,19 @@ export function useRealtimeSync() {
                 }
             )
             .subscribe((status) => {
+                console.log(`Realtime Status (${householdId}):`, status);
                 if (status === 'SUBSCRIBED') {
-                    console.log('✅ Subscribed to Realtime changes');
                     setConnectionStatus('connected');
                 } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
                     console.error('❌ Realtime Error:', status);
                     setConnectionStatus('disconnected');
+                    // Retry logic could go here, but Supabase retries automatically usually
                 }
             });
 
         return () => {
             console.log('🔌 Disconnecting Realtime...');
             supabase.removeChannel(channel);
-            setConnectionStatus('disconnected');
         };
     }, [householdId, supabase, addItem, updateItem, removeItem, setConnectionStatus]);
 }
