@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -15,9 +15,18 @@ export default function OnboardingPage() {
     const [loading, setLoading] = useState(false);
 
     const router = useRouter();
+    const searchParams = useSearchParams();
     const supabase = createClient();
     const user = useStore((state) => state.user);
     const setHousehold = useStore((state) => state.setHousehold);
+
+    useEffect(() => {
+        const code = searchParams.get('code');
+        if (code) {
+            setMode('join');
+            setInviteCode(code);
+        }
+    }, [searchParams]);
 
     const handleCreateFamily = async (e: React.FormEvent) => {
         e.preventDefault();

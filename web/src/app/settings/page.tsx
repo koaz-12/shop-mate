@@ -72,6 +72,23 @@ export default function SettingsPage() {
         }
     };
 
+    const handleLeaveHousehold = async () => {
+        if (!household || !confirm('¿Estás seguro de que quieres salir de esta familia? Tendrás que ser invitado de nuevo o crear una nueva.')) return;
+
+        try {
+            // @ts-ignore
+            const { data, error } = await supabase.rpc('leave_household', { target_household_id: household.id });
+
+            if (error) throw error;
+            if (data && !data.success) throw new Error(data.message);
+
+            setHousehold(null);
+            router.push('/onboarding');
+        } catch (error: any) {
+            alert('Error: ' + error.message);
+        }
+    };
+
     const handleLogout = async () => {
         await supabase.auth.signOut();
         setUser(null);
@@ -255,6 +272,14 @@ export default function SettingsPage() {
                         }}>
                             <PenLine size={20} className="text-slate-400 hover:text-emerald-500" />
                         </Button>
+                    </div>
+                    <div className="mt-2 text-center">
+                        <button
+                            onClick={handleLeaveHousehold}
+                            className="text-xs text-red-400 hover:text-red-500 hover:underline transition-colors"
+                        >
+                            Salir de la familia
+                        </button>
                     </div>
                 </section>
 
