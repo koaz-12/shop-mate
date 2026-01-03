@@ -4,7 +4,7 @@ import { Item } from '@/types';
 import { useCallback } from 'react';
 
 export function useItems() {
-    const { items, updateItem, deleteItem, lists } = useStore();
+    const { items, updateItem, removeItem, lists } = useStore();
     const supabase = createClient();
 
     const toggleItem = useCallback(async (itemId: string, currentStatus: boolean) => {
@@ -33,14 +33,14 @@ export function useItems() {
 
     const softDeleteItem = useCallback(async (itemId: string) => {
         // Optimistic
-        deleteItem(itemId); // remove from store
+        removeItem(itemId); // remove from store
 
         // Database (Soft Delete)
         await supabase
             .from('items' as any)
             .update({ deleted_at: new Date().toISOString() })
             .eq('id', itemId);
-    }, [deleteItem, supabase]);
+    }, [removeItem, supabase]);
 
     return {
         toggleItem,
