@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 23: Deployment Trigger for Toaster Dependency
+// Cache Bust 24: Deployment Trigger for Offline Sync Types Fix
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
