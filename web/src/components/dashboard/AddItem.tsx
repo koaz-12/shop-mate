@@ -16,6 +16,7 @@ export default function AddItem() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
+    const [scannedBarcode, setScannedBarcode] = useState<string | null>(null); // New State
     const supabase = createClient();
     const { household, user, activeView, items, categories, catalog, currentList, addItem } = useStore();
     const { isListening, transcript, startListening, isSupported, setTranscript } = useVoiceInput();
@@ -49,8 +50,9 @@ export default function AddItem() {
         if (detected) setSelectedCategory(detected);
     };
 
-    const handleSmartComplete = (scannedName: string) => {
+    const handleSmartComplete = (scannedName: string, barcode: string) => {
         handleNameChange(scannedName);
+        setScannedBarcode(barcode);
 
         // Price Memory: Check history (Catalog) or Active Items
         const lowerScanned = scannedName.toLowerCase();
@@ -119,7 +121,8 @@ export default function AddItem() {
             household_id: household.id,
             list_id: currentList?.id,
             created_by: user.id,
-            is_completed: false
+            is_completed: false,
+            barcode: scannedBarcode
         };
 
         if (activeView === 'pantry') {
@@ -146,6 +149,7 @@ export default function AddItem() {
         setSelectedCategory(null);
         setIsExpanded(false);
         setTranscript(''); // Clear voice
+        setScannedBarcode(null);
     };
 
     return (
@@ -260,6 +264,7 @@ export default function AddItem() {
                 <BarcodeScanner
                     onClose={() => setShowScanner(false)}
                     onDetected={handleSmartComplete}
+                    catalog={catalog}
                 />
             )}
         </div>

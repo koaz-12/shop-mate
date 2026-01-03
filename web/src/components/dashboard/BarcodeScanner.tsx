@@ -4,17 +4,20 @@ import { useState } from 'react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { X, Calculator, Loader2, ScanBarcode } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { HouseholdProduct } from '@/types';
 
 interface BarcodeScannerProps {
     onClose: () => void;
-    onDetected: (name: string) => void;
+    onDetected: (name: string, barcode: string) => void;
+    catalog: HouseholdProduct[];
 }
 
-export default function BarcodeScanner({ onClose, onDetected }: BarcodeScannerProps) {
+export default function BarcodeScanner({ onClose, onDetected, catalog }: BarcodeScannerProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [manualName, setManualName] = useState('');
     const [showManualInput, setShowManualInput] = useState(false);
+    const [scannedCode, setScannedCode] = useState<string>('');
 
     const handleScan = async (result: any) => {
         if (!result || showManualInput || isLoading) return;
@@ -22,22 +25,34 @@ export default function BarcodeScanner({ onClose, onDetected }: BarcodeScannerPr
         const code = result[0]?.rawValue || result?.rawValue;
 
         if (code) {
+            setScannedCode(code);
             setIsLoading(true);
+
+            // 1. Check Local Catalog (Memory)
+            const localMatch = catalog.find(p => p.barcode === code);
+
+            if (localMatch) {
+                if (navigator.vibrate) navigator.vibrate(50);
+                onDetected(localMatch.name, code);
+                onClose();
+                return;
+            }
+
+            // 2. Check OpenFoodFacts (Cloud)
             try {
-                // Query OpenFoodFacts
                 const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
                 const data = await response.json();
 
                 if (data.status === 1) {
                     const productName = data.product.product_name_es || data.product.product_name;
                     if (productName) {
-                        if (navigator.vibrate) navigator.vibrate(50); // Short success vibration
-                        onDetected(productName);
+                        if (navigator.vibrate) navigator.vibrate(50);
+                        onDetected(productName, code);
                         onClose();
                     } else {
                         setError('Producto sin nombre.');
                         setShowManualInput(true);
-                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // Error vibration
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                     }
                 } else {
                     setError('Producto no encontrado.');
@@ -56,7 +71,7 @@ export default function BarcodeScanner({ onClose, onDetected }: BarcodeScannerPr
     const handleManualSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (manualName.trim()) {
-            onDetected(manualName.trim());
+            onDetected(manualName.trim(), scannedCode);
             onClose();
         }
     };
