@@ -28,7 +28,7 @@ export default function ListSelector() {
         };
 
         const { data, error } = await supabase
-            .from('lists')
+            .from('lists' as any)
             .insert(newList)
             .select()
             .single();

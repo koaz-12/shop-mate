@@ -95,7 +95,7 @@ export default function AddItem() {
 
                 if (shouldMove) {
                     // @ts-ignore
-                    await supabase.from('items').update({
+                    await supabase.from('items' as any).update({
                         in_pantry: !existingItem.in_pantry,
                         is_completed: false
                     } as any).eq('id', existingItem.id);
@@ -128,7 +128,7 @@ export default function AddItem() {
         }
 
         // @ts-ignore
-        await supabase.from('items').insert(newItem as any);
+        await supabase.from('items' as any).insert(newItem as any);
         clearForm();
     };
 

@@ -13,7 +13,7 @@ export function useItems() {
 
         // Database
         await supabase
-            .from('items')
+            .from('items' as any)
             .update({ in_pantry: !currentStatus })
             .eq('id', itemId);
     }, [updateItem, supabase]);
@@ -24,7 +24,7 @@ export function useItems() {
 
         // Database
         const { error } = await supabase
-            .from('items')
+            .from('items' as any)
             .update(updates)
             .eq('id', itemId);
 
@@ -37,7 +37,7 @@ export function useItems() {
 
         // Database (Soft Delete)
         await supabase
-            .from('items')
+            .from('items' as any)
             .update({ deleted_at: new Date().toISOString() })
             .eq('id', itemId);
     }, [deleteItem, supabase]);

@@ -83,7 +83,7 @@ export default function HistoryPage() {
         }
 
         const { data } = await supabase
-            .from('household_products')
+            .from('household_products' as any)
             .upsert(payload as any) // Supabase strict typing might complain about partial upsert
             .select()
             .single();
@@ -108,7 +108,7 @@ export default function HistoryPage() {
         };
 
         // Optimistic via store handling ideally, but simple insert works
-        const { data, error } = await supabase.from('items').insert(newItem).select().single();
+        const { data, error } = await supabase.from('items' as any).insert(newItem as any).select().single();
         if (data) addItem(data);
     };
 
