@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -14,10 +14,15 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [isSignUp, setIsSignUp] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
     const supabase = createClient();
     const setUser = useStore((state) => state.setUser);
 
     useEffect(() => {
+        if (searchParams.get('mode') === 'signup') {
+            setIsSignUp(true);
+        }
+
         const checkUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
@@ -25,7 +30,7 @@ export default function LoginPage() {
             }
         };
         checkUser();
-    }, [router, supabase.auth]);
+    }, [router, supabase.auth, searchParams]);
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
