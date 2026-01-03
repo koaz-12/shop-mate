@@ -1,5 +1,3 @@
-```typescript
-import { useRef } from 'react';
 import { Wallet, Settings, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/store/useStore';
@@ -7,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
 export default function Header() {
-    const { user, profile, connectionStatus, triggerRefresh } = useStore(); // Destructured triggerRefresh
+    const { user, profile, connectionStatus, triggerRefresh } = useStore();
     const router = useRouter();
 
     const initial = profile?.full_name ? profile.full_name[0].toUpperCase() : user?.email?.[0].toUpperCase() || '?';
@@ -44,9 +42,10 @@ export default function Header() {
                 </button>
 
                 {/* Connection Status Indicator */}
-                <div
-                    className={`w - 2 h - 2 rounded - full ${ getStatusColor() } shadow - sm transition - colors duration - 500`}
-                    title={connectionStatus === 'connected' ? 'En línea' : 'Sin conexión'}
+                <button
+                    onClick={handleReconnect}
+                    className={`w-3 h-3 rounded-full ${getStatusColor()} shadow-sm transition-colors duration-500 cursor-pointer hover:ring-2 ring-offset-1 ring-slate-200`}
+                    title={connectionStatus === 'connected' ? 'En línea (Click para reconectar)' : 'Sin conexión (Click para reconectar)'}
                 />
 
                 <Link href="/settings" className="relative group">

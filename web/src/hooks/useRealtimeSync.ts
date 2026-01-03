@@ -1,4 +1,3 @@
-```typescript
 import { useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
@@ -15,46 +14,39 @@ export function useRealtimeSync() {
         if (!householdId) return;
 
         // Cleanup existing if ID changed or we are refreshing
-        const topic = `realtime: sync - ${ householdId } `;
+        const topic = `realtime:sync-${householdId}`;
         const existingChannel = supabase.getChannels().find(c => c.topic === topic);
 
         if (existingChannel) {
-             // If we have a channel, we generally reuse it.
-             // But if this effect triggered due to 'refreshTrigger' change, we might want to kill it?
-             // The previous cleanup should have killed it?
-             // No, previous cleanup kills 'channelRef.current'.
-             // If 'existingChannel' comes from global state, it might linger.
-             
-             // For robustness: Reuse if joined, but if we are here, we verify status.
-             console.log('🔄 Checking existing channel:', topic, existingChannel.state);
-             if (existingChannel.state === 'joined') {
-                 setConnectionStatus('connected');
-                 channelRef.current = existingChannel;
-                 return;
-             }
-             // If closed or error, we might want to remove it and start fresh?
-             if (existingChannel.state === 'closed' || existingChannel.state === 'errored') {
-                 supabase.removeChannel(existingChannel);
-             }
+            console.log('🔄 Checking existing channel:', topic, existingChannel.state);
+            if (existingChannel.state === 'joined') {
+                setConnectionStatus('connected');
+                channelRef.current = existingChannel;
+                return;
+            }
+            // If closed or error, remove it
+            if (existingChannel.state === 'closed' || existingChannel.state === 'errored') {
+                supabase.removeChannel(existingChannel);
+            }
         }
 
         console.log('🔌 Initialize Realtime Connection:', householdId);
         setConnectionStatus('connecting');
-        toast.loading('Connecting to household sync...', { id: 'realtime-sync' });
+        toast.loading('Sincronizando...', { id: 'realtime-sync', duration: 2000 });
 
         const channel = supabase
-            .channel(`sync - ${ householdId } `)
+            .channel(`sync-${householdId}`)
             .on(
                 'postgres_changes',
                 {
                     event: '*',
                     schema: 'public',
                     table: 'items',
-                    filter: `household_id = eq.${ householdId } `,
+                    filter: `household_id=eq.${householdId}`,
                 },
                 (payload) => {
                     console.log('📥 Realtime Payload:', payload);
-                    setConnectionStatus('connected'); 
+                    setConnectionStatus('connected');
 
                     if (payload.eventType === 'INSERT') {
                         addItem(payload.new as any);
@@ -70,14 +62,13 @@ export function useRealtimeSync() {
                 }
             )
             .subscribe((status) => {
-                console.log(`📶 Connection Status(${ householdId }): `, status);
-                
+                console.log(`📶 Connection Status (${householdId}):`, status);
+
                 if (status === 'SUBSCRIBED') {
                     setConnectionStatus('connected');
                 } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
                     console.error('❌ Connection Error:', status);
                     setConnectionStatus('disconnected');
-                    // Optional: Trigger a retry after delay?
                 } else if (status === 'CLOSED') {
                     setConnectionStatus('disconnected');
                 }
@@ -86,7 +77,6 @@ export function useRealtimeSync() {
         channelRef.current = channel;
 
         return () => {
-            // Cleanup: Only remove if we are truly unmounting or changing household
             console.log('🔌 Cleaning up channel...');
             if (channelRef.current) {
                 supabase.removeChannel(channelRef.current);
@@ -95,4 +85,3 @@ export function useRealtimeSync() {
         };
     }, [householdId, supabase, addItem, updateItem, removeItem, setConnectionStatus, refreshTrigger]);
 }
-```
