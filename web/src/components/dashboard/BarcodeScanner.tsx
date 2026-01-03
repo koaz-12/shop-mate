@@ -13,11 +13,12 @@ interface BarcodeScannerProps {
 export default function BarcodeScanner({ onClose, onDetected }: BarcodeScannerProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [manualName, setManualName] = useState('');
+    const [showManualInput, setShowManualInput] = useState(false);
 
     const handleScan = async (result: any) => {
-        if (!result) return;
+        if (!result || showManualInput || isLoading) return;
 
-        // Use the raw value if it exists, handling different library version responses
         const code = result[0]?.rawValue || result?.rawValue;
 
         if (code) {
@@ -30,19 +31,33 @@ export default function BarcodeScanner({ onClose, onDetected }: BarcodeScannerPr
                 if (data.status === 1) {
                     const productName = data.product.product_name_es || data.product.product_name;
                     if (productName) {
+                        if (navigator.vibrate) navigator.vibrate(50); // Short success vibration
                         onDetected(productName);
                         onClose();
                     } else {
-                        setError('Producto encontrado pero sin nombre.');
+                        setError('Producto sin nombre.');
+                        setShowManualInput(true);
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // Error vibration
                     }
                 } else {
                     setError('Producto no encontrado.');
+                    setShowManualInput(true);
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 }
             } catch (err) {
-                setError('Error al conectar con la base de datos.');
+                setError('Error de conexión.');
+                setShowManualInput(true);
             } finally {
                 setIsLoading(false);
             }
+        }
+    };
+
+    const handleManualSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (manualName.trim()) {
+            onDetected(manualName.trim());
+            onClose();
         }
     };
 
@@ -60,7 +75,7 @@ export default function BarcodeScanner({ onClose, onDetected }: BarcodeScannerPr
 
             <div className="flex-1 relative flex items-center justify-center bg-black">
                 {/* Scanner Component */}
-                {!isLoading ? (
+                {!isLoading && !showManualInput && (
                     <div className="w-full h-full">
                         <Scanner
                             onScan={handleScan}
@@ -80,14 +95,54 @@ export default function BarcodeScanner({ onClose, onDetected }: BarcodeScannerPr
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-1 bg-red-500/50 animate-pulse"></div>
                         </div>
                     </div>
-                ) : (
+                )}
+
+                {isLoading && (
                     <div className="flex flex-col items-center gap-4 text-emerald-500">
                         <Loader2 size={48} className="animate-spin" />
                         <span className="text-white font-medium">Buscando producto...</span>
                     </div>
                 )}
 
-                {error && (
+                {showManualInput && (
+                    <div className="absolute inset-0 z-20 bg-black/80 flex items-center justify-center p-6">
+                        <form onSubmit={handleManualSubmit} className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 animate-in zoom-in-95 shadow-2xl">
+                            <div className="text-center space-y-2">
+                                <div className="mx-auto bg-amber-100 text-amber-600 w-12 h-12 rounded-full flex items-center justify-center">
+                                    <ScanBarcode size={24} />
+                                </div>
+                                <h3 className="font-bold text-lg text-slate-800">¿Qué producto es?</h3>
+                                <p className="text-sm text-slate-500 flex flex-col">
+                                    <span>No encontramos este código.</span>
+                                    <span>Ingresa el nombre para agregarlo.</span>
+                                </p>
+                            </div>
+
+                            <input
+                                autoFocus
+                                type="text"
+                                value={manualName}
+                                onChange={e => setManualName(e.target.value)}
+                                placeholder="Ej: Pan de Molde"
+                                className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none font-medium text-slate-800"
+                            />
+
+                            <Button type="submit" className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 font-bold shadow-lg shadow-emerald-200" disabled={!manualName.trim()}>
+                                Guardar y Agregar
+                            </Button>
+
+                            <button
+                                type="button"
+                                onClick={() => { setShowManualInput(false); setError(null); setManualName(''); }}
+                                className="w-full text-sm text-slate-400 py-2 hover:text-white transition-colors"
+                            >
+                                Escanear otro
+                            </button>
+                        </form>
+                    </div>
+                )}
+
+                {error && !showManualInput && (
                     <div className="absolute bottom-24 bg-red-500 text-white px-4 py-2 rounded-xl shadow-lg animate-in fade-in slide-in-from-bottom-2">
                         {error}
                     </div>
@@ -95,7 +150,7 @@ export default function BarcodeScanner({ onClose, onDetected }: BarcodeScannerPr
             </div>
 
             <div className="p-6 bg-slate-900 text-center text-slate-400 text-sm">
-                Apunta el código de barras del producto dentro del recuadro.
+                {!showManualInput ? "Apunta el código de barras dentro del recuadro." : "Ingresa el nombre manualmente."}
             </div>
         </div>
     );
