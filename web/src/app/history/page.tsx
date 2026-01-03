@@ -5,10 +5,11 @@ import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { useItems } from '@/hooks/useItems';
 import { Button } from '@/components/ui/Button';
-import { Plus, RotateCcw, BarChart2, Trash2, X } from 'lucide-react';
+import { Plus, RotateCcw, BarChart2, Trash2, X, Check } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/dashboard/Header';
 import RecurrenceModal from '@/components/dashboard/RecurrenceModal';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import { Clock } from 'lucide-react';
 
 import { HouseholdProduct } from '@/types';
@@ -24,6 +25,14 @@ export default function HistoryPage() {
     const [products, setProducts] = useState<Record<string, HouseholdProduct>>({});
     const [recurrenceItem, setRecurrenceItem] = useState<HistoryItem | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        description: string;
+        onConfirm: () => void;
+        variant?: 'danger' | 'warning';
+    }>({ isOpen: false, title: '', description: '', onConfirm: () => { } });
+
     const supabase = createClient();
     const { household, user, items: activeItems, addItem, currentList } = useStore(); // Get active items
     const { softDeleteItem } = useItems();
@@ -97,26 +106,42 @@ export default function HistoryPage() {
         setRecurrenceItem(null);
     };
 
-    const handleDeleteFromHistory = async (name: string) => {
-        if (!confirm(`¿Eliminar "${name}" del historial?`)) return;
-
-        // Optimistic
-        setHistoryItems(prev => prev.filter(i => i.name !== name));
-
-        // Soft delete all items with this name
-        await supabase
-            .from('items' as any)
-            .update({ deleted_at: new Date().toISOString() })
-            .eq('household_id', household.id)
-            .eq('name', name);
+    const handleDeleteFromHistory = (name: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: '¿Eliminar del historial?',
+            description: `"${name}" se borrará permanentemente de tu historial y sugerencias.`,
+            variant: 'danger',
+            onConfirm: async () => {
+                setHistoryItems(prev => prev.filter(i => i.name !== name));
+                await supabase
+                    .from('items' as any)
+                    .update({ deleted_at: new Date().toISOString() })
+                    .eq('household_id', household.id)
+                    .eq('name', name);
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            }
+        });
     };
 
-    const handleRemoveFromList = async (name: string) => {
-        const active = activeItems.find(i => i.name.toLowerCase() === name.toLowerCase() && !i.in_pantry);
+    const handleToggleList = (item: HistoryItem) => {
+        const active = activeItems.find(i => i.name.toLowerCase() === item.name.toLowerCase() && !i.in_pantry);
+
         if (active) {
-            if (confirm(`¿Quitar "${name}" de la lista?`)) {
-                await softDeleteItem(active.id);
-            }
+            // Remove
+            setConfirmModal({
+                isOpen: true,
+                title: '¿Quitar de la lista?',
+                description: `"${item.name}" saldrá de tu lista de compras actual.`,
+                variant: 'warning',
+                onConfirm: async () => {
+                    await softDeleteItem(active.id);
+                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                }
+            });
+        } else {
+            // Add (No confirm needed)
+            addToShoppingList(item);
         }
     };
 
@@ -203,6 +228,8 @@ export default function HistoryPage() {
                             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-50">
                                 {groupedItems[category].map((item, idx) => {
                                     const status = getItemStatus(item.name);
+                                    const isOnList = status === 'shopping';
+
                                     return (
                                         <div key={idx} className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
                                             <div>
@@ -210,29 +237,14 @@ export default function HistoryPage() {
                                                 {item.quantity && <p className="text-xs text-slate-400">{item.quantity}</p>}
                                             </div>
 
-                                            {status === 'pantry' && (
-                                                <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold border border-blue-100 flex items-center gap-1">
-                                                    En Despensa
-                                                </span>
-                                            )}
-
-                                            {status === 'shopping' && (
-                                                <div className="flex items-center gap-2">
-                                                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 flex items-center gap-1">
-                                                        En Lista
+                                            <div className="flex items-center gap-2">
+                                                {status === 'pantry' && (
+                                                    <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold border border-blue-100 flex items-center gap-1">
+                                                        En Despensa
                                                     </span>
-                                                    <button
-                                                        onClick={() => handleRemoveFromList(item.name)}
-                                                        className="h-8 w-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-red-500 transition-all font-bold"
-                                                        title="Quitar de la lista"
-                                                    >
-                                                        <X size={16} />
-                                                    </button>
-                                                </div>
-                                            )}
+                                                )}
 
-                                            {!status && (
-                                                <div className="flex items-center gap-2">
+                                                {!status && (
                                                     <button
                                                         onClick={() => handleDeleteFromHistory(item.name)}
                                                         className="h-8 w-8 flex items-center justify-center rounded-full text-slate-300 hover:bg-red-50 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
@@ -240,22 +252,28 @@ export default function HistoryPage() {
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
-                                                    <button
-                                                        onClick={() => setRecurrenceItem(item)}
-                                                        className={`h-8 w-8 flex items-center justify-center rounded-full transition-all shadow-sm ${products[item.name.toLowerCase()]?.recurrence_interval
-                                                            ? 'bg-blue-100 text-blue-600 ring-2 ring-blue-200'
-                                                            : 'bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-500'}`}
-                                                    >
-                                                        <Clock size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => addToShoppingList(item)}
-                                                        className="h-8 w-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
-                                                    >
-                                                        <Plus size={16} />
-                                                    </button>
-                                                </div>
-                                            )}
+                                                )}
+
+                                                <button
+                                                    onClick={() => setRecurrenceItem(item)}
+                                                    className={`h-8 w-8 flex items-center justify-center rounded-full transition-all shadow-sm ${products[item.name.toLowerCase()]?.recurrence_interval
+                                                        ? 'bg-blue-100 text-blue-600 ring-2 ring-blue-200'
+                                                        : 'bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-500'}`}
+                                                >
+                                                    <Clock size={16} />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleToggleList(item)}
+                                                    title={isOnList ? "Quitar de lista" : "Agregar a lista"}
+                                                    className={`h-8 w-8 flex items-center justify-center rounded-full transition-all shadow-sm ${isOnList
+                                                        ? 'bg-emerald-100 text-emerald-600'
+                                                        : 'bg-slate-100 text-slate-600 hover:bg-emerald-500 hover:text-white'
+                                                        }`}
+                                                >
+                                                    {isOnList ? <Check size={16} /> : <Plus size={16} />}
+                                                </button>
+                                            </div>
                                         </div>
                                     );
                                 })}
@@ -272,6 +290,15 @@ export default function HistoryPage() {
                     onSave={handleSaveRecurrence}
                 />
             )}
+
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                title={confirmModal.title}
+                description={confirmModal.description}
+                onConfirm={confirmModal.onConfirm}
+                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                variant={confirmModal.variant as any}
+            />
         </div>
     );
 }

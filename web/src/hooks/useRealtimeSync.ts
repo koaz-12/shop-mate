@@ -1,17 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 
 export function useRealtimeSync() {
-    const supabase = createClient();
-    const { household, addItem, updateItem, removeItem, setItems } = useStore();
+    const supabase = useMemo(() => createClient(), []);
+    const { household, addItem, updateItem, removeItem } = useStore();
     const householdId = household?.id;
 
     useEffect(() => {
         if (!householdId) return;
 
+        console.log('🔌 Connecting to Realtime for Household:', householdId);
+
         const channel = supabase
-            .channel('db-changes')
+            .channel(`sync-${householdId}`)
             .on(
                 'postgres_changes',
                 {
@@ -21,7 +23,7 @@ export function useRealtimeSync() {
                     filter: `household_id=eq.${householdId}`,
                 },
                 (payload) => {
-                    console.log('Realtime change:', payload);
+                    console.log('Realtime change (items):', payload);
 
                     if (payload.eventType === 'INSERT') {
                         addItem(payload.new as any);
@@ -37,9 +39,14 @@ export function useRealtimeSync() {
                     }
                 }
             )
-            .subscribe();
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('✅ Subscribed to Realtime changes');
+                }
+            });
 
         return () => {
+            console.log('🔌 Disconnecting Realtime...');
             supabase.removeChannel(channel);
         };
     }, [householdId, supabase, addItem, updateItem, removeItem]);
