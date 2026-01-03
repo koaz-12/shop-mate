@@ -24,7 +24,7 @@ export default function HistoryPage() {
     const [recurrenceItem, setRecurrenceItem] = useState<HistoryItem | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const supabase = createClient();
-    const { household, user, items: activeItems, addItem } = useStore(); // Get active items
+    const { household, user, items: activeItems, addItem, currentList } = useStore(); // Get active items
 
     useEffect(() => {
         if (!household) return;
@@ -103,6 +103,7 @@ export default function HistoryPage() {
             quantity: item.quantity,
             in_pantry: false, // Default to to-buy
             household_id: household.id,
+            list_id: currentList?.id,
             created_by: user.id,
             is_completed: false
         };
