@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
+import { useRealtimeSync } from '@/hooks/useRealtimeSync';
 
 export default function AuthCheck({ children }: { children: React.ReactNode }) {
+    useRealtimeSync();
     const router = useRouter();
     const pathname = usePathname();
     const supabase = createClient();

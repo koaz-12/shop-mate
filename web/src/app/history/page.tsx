@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
+import { useItems } from '@/hooks/useItems';
 import { Button } from '@/components/ui/Button';
-import { Plus, RotateCcw, BarChart2, Trash2 } from 'lucide-react';
+import { Plus, RotateCcw, BarChart2, Trash2, X } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/dashboard/Header';
 import RecurrenceModal from '@/components/dashboard/RecurrenceModal';
@@ -25,6 +26,7 @@ export default function HistoryPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const supabase = createClient();
     const { household, user, items: activeItems, addItem, currentList } = useStore(); // Get active items
+    const { softDeleteItem } = useItems();
 
     useEffect(() => {
         if (!household) return;
@@ -107,6 +109,15 @@ export default function HistoryPage() {
             .update({ deleted_at: new Date().toISOString() })
             .eq('household_id', household.id)
             .eq('name', name);
+    };
+
+    const handleRemoveFromList = async (name: string) => {
+        const active = activeItems.find(i => i.name.toLowerCase() === name.toLowerCase() && !i.in_pantry);
+        if (active) {
+            if (confirm(`¿Quitar "${name}" de la lista?`)) {
+                await softDeleteItem(active.id);
+            }
+        }
     };
 
     const addToShoppingList = async (item: HistoryItem) => {
@@ -206,9 +217,18 @@ export default function HistoryPage() {
                                             )}
 
                                             {status === 'shopping' && (
-                                                <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 flex items-center gap-1">
-                                                    En Lista
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 flex items-center gap-1">
+                                                        En Lista
+                                                    </span>
+                                                    <button
+                                                        onClick={() => handleRemoveFromList(item.name)}
+                                                        className="h-8 w-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-red-500 transition-all font-bold"
+                                                        title="Quitar de la lista"
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
                                             )}
 
                                             {!status && (
