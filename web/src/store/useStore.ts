@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '@supabase/supabase-js';
-import { Item, Household, Profile, Category, HouseholdProduct, List } from '../types';
+import { Item, Household, Profile, Category, HouseholdProduct, List, PendingAction } from '../types';
 import { LoyaltyCard } from '@/types';
 
 interface AppState {
@@ -21,6 +21,7 @@ interface AppState {
     autoAddRecurring: boolean;
     themeColor: 'emerald' | 'blue' | 'violet' | 'rose' | 'orange';
     connectionStatus: 'connected' | 'disconnected' | 'connecting';
+    pendingActions: PendingAction[];
     setUser: (user: User | null) => void;
     setProfile: (profile: Profile | null) => void;
     setHousehold: (household: Household | null) => void;
@@ -37,6 +38,8 @@ interface AppState {
     setAutoAddRecurring: (enabled: boolean) => void;
     setThemeColor: (color: 'emerald' | 'blue' | 'violet' | 'rose' | 'orange') => void;
     setConnectionStatus: (status: 'connected' | 'disconnected' | 'connecting') => void;
+    queueAction: (action: PendingAction) => void;
+    removeAction: (actionId: string) => void;
     addItem: (item: Item) => void;
     updateItem: (itemId: string, updates: Partial<Item>) => void;
     removeItem: (itemId: string) => void;
@@ -64,6 +67,7 @@ export const useStore = create<AppState>()(
             autoAddRecurring: false,
             themeColor: 'emerald',
             connectionStatus: 'disconnected',
+            pendingActions: [],
             setUser: (user) => set({ user }),
             setProfile: (profile) => set({ profile }),
             setHousehold: (household) => set({ household }),
@@ -80,7 +84,13 @@ export const useStore = create<AppState>()(
             setAutoAddRecurring: (autoAddRecurring) => set({ autoAddRecurring }),
             setThemeColor: (themeColor) => set({ themeColor }),
             setConnectionStatus: (status) => set({ connectionStatus: status }),
-            addItem: (item) => set((state) => ({ items: [item, ...state.items] })),
+            queueAction: (action) => set((state) => ({ pendingActions: [...state.pendingActions, action] })),
+            removeAction: (id) => set((state) => ({ pendingActions: state.pendingActions.filter(a => a.id !== id) })),
+            addItem: (item) => set((state) => {
+                const exists = state.items.some(i => i.id === item.id);
+                if (exists) return state;
+                return { items: [item, ...state.items] };
+            }),
             updateItem: (itemId, updates) =>
                 set((state) => ({
                     items: state.items.map((i) => (i.id === itemId ? { ...i, ...updates } : i)),
@@ -91,7 +101,7 @@ export const useStore = create<AppState>()(
             removeLoyaltyCard: (cardId) =>
                 set((state) => ({ loyaltyCards: state.loyaltyCards.filter((c) => c.id !== cardId) })),
             reset: () => set({
-                user: null, profile: null, household: null, members: [], items: [], categories: [], catalog: [], lists: [], currentList: null, loyaltyCards: [], activeView: 'shopping-list', isLoading: false, hapticFeedback: true
+                user: null, profile: null, household: null, members: [], items: [], categories: [], catalog: [], lists: [], currentList: null, loyaltyCards: [], activeView: 'shopping-list', isLoading: false, hapticFeedback: true, pendingActions: []
             }),
         }),
         {
@@ -109,6 +119,7 @@ export const useStore = create<AppState>()(
                 hapticFeedback: state.hapticFeedback,
                 autoAddRecurring: state.autoAddRecurring,
                 themeColor: state.themeColor,
+                pendingActions: state.pendingActions,
             }),
         }
     )

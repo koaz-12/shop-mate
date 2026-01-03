@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 25: Deployment Trigger for History Page Sync Fix
+// Cache Bust 26: Deployment Trigger for Store Duplicates and Toasts
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
