@@ -5,9 +5,11 @@ import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
 
 export default function AuthCheck({ children }: { children: React.ReactNode }) {
     useRealtimeSync();
+    useOfflineSync();
     const router = useRouter();
     const pathname = usePathname();
     const supabase = createClient();

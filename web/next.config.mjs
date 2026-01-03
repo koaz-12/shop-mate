@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 31: Deployment Trigger for Aggressive Sync (No Filter, Fresh Channel)
+// Cache Bust 32: Production Release (Sync & RLS Fixed)
 const nextConfig = {
     reactStrictMode: true,
     typescript: {

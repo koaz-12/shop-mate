@@ -61,7 +61,16 @@ export type Category = {
     keywords: string[];
     household_id: string | null;
     is_system: boolean;
+    barcode?: string | null;
 };
+
+export interface PendingAction {
+    id: string; // unique process id
+    type: 'ADD_ITEM' | 'UPDATE_ITEM' | 'DELETE_ITEM' | 'TOGGLE_ITEM';
+    payload: any;
+    timestamp: number;
+    retryCount: number;
+}
 
 export type Database = {
     public: {

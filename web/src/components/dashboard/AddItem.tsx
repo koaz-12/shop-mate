@@ -7,6 +7,7 @@ import { Plus, Sparkles, Mic, MicOff, ScanBarcode } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import useVoiceInput from '@/hooks/useVoiceInput';
+import { useItems } from '@/hooks/useItems'; // Added import
 import BarcodeScanner from './BarcodeScanner';
 
 export default function AddItem() {
@@ -18,7 +19,8 @@ export default function AddItem() {
     const [showScanner, setShowScanner] = useState(false);
     const [scannedBarcode, setScannedBarcode] = useState<string | null>(null); // New State
     const supabase = createClient();
-    const { household, user, activeView, items, categories, catalog, currentList, addItem } = useStore();
+    const { household, user, activeView, items, categories, catalog, currentList } = useStore();
+    const { addNewItem } = useItems(); // Use the hook
     const { isListening, transcript, startListening, isSupported, setTranscript } = useVoiceInput();
 
     // Voice Effect
@@ -130,16 +132,9 @@ export default function AddItem() {
             newItem.is_completed = true; // Pantry items usually start as "bought" logic? No, they just exist.
         }
 
-        // @ts-ignore
-        const { data, error } = await supabase.from('items' as any).insert(newItem as any).select().single();
-
-        if (data) {
-            addItem(data);
-            clearForm();
-        } else if (error) {
-            console.error('Error adding item:', error);
-            alert('Error agregando ítem');
-        }
+        // Use the Offline-Resilient Hook
+        await addNewItem(newItem);
+        clearForm();
     };
 
     const clearForm = () => {
