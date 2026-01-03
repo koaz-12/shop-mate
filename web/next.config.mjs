@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 17: Deployment Trigger for Bulk Actions Feature
+// Cache Bust 18: Deployment Trigger for Sync Restoration & UI Refresh
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
