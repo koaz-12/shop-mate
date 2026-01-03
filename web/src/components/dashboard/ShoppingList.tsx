@@ -13,11 +13,10 @@ import EditItemModal from './EditItemModal';
 import EmptyState from './EmptyState';
 
 export default function ShoppingList() {
-    const { items, household, currentList } = useStore();
+    const { items, household, currentList, activeView, setActiveView } = useStore();
     const { toggleItem, updateItemDetails, softDeleteItem } = useItems();
     const router = useRouter();
 
-    const [activeView, setActiveView] = useState<'shopping-list' | 'pantry'>('shopping-list');
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState<'category' | 'name' | 'price-desc'>('category');
 
