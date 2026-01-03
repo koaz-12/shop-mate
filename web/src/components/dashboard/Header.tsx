@@ -1,12 +1,12 @@
-'use client';
-
 import { useRef } from 'react';
-import { Settings, User as UserIcon } from 'lucide-react';
+import { Settings, User as UserIcon, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/store/useStore';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
     const { user, profile, connectionStatus } = useStore();
+    const router = useRouter();
 
     const initial = profile?.full_name ? profile.full_name[0].toUpperCase() : user?.email?.[0].toUpperCase() || '?';
 
@@ -28,6 +28,14 @@ export default function Header() {
             </div>
 
             <div className="flex items-center gap-3">
+                <button
+                    onClick={() => router.push('/loyalty')}
+                    className="w-9 h-9 bg-primary-50 rounded-full flex items-center justify-center text-primary-600 hover:bg-primary-100 transition-all border border-primary-100 shadow-sm"
+                    title="Cartera"
+                >
+                    <Wallet size={18} />
+                </button>
+
                 {/* Connection Status Indicator */}
                 <div
                     className={`w-2 h-2 rounded-full ${getStatusColor()} shadow-sm transition-colors duration-500`}

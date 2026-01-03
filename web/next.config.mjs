@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 20: Deployment Trigger for Syntax Fix in Header
+// Cache Bust 21: Deployment Trigger for Wallet Button Restoration
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
