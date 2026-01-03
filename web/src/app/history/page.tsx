@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/Button';
-import { Plus, RotateCcw, BarChart2 } from 'lucide-react';
+import { Plus, RotateCcw, BarChart2, Trash2 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/dashboard/Header';
 import RecurrenceModal from '@/components/dashboard/RecurrenceModal';
@@ -35,6 +35,7 @@ export default function HistoryPage() {
                 .from('items')
                 .select('name, category, quantity')
                 .eq('household_id', household.id)
+                .is('deleted_at', null)
                 .order('created_at', { ascending: false });
 
             if (data) {
@@ -92,6 +93,20 @@ export default function HistoryPage() {
             setProducts(prev => ({ ...prev, [lowerName]: data }));
         }
         setRecurrenceItem(null);
+    };
+
+    const handleDeleteFromHistory = async (name: string) => {
+        if (!confirm(`¿Eliminar "${name}" del historial?`)) return;
+
+        // Optimistic
+        setHistoryItems(prev => prev.filter(i => i.name !== name));
+
+        // Soft delete all items with this name
+        await supabase
+            .from('items' as any)
+            .update({ deleted_at: new Date().toISOString() })
+            .eq('household_id', household.id)
+            .eq('name', name);
     };
 
     const addToShoppingList = async (item: HistoryItem) => {
@@ -178,7 +193,7 @@ export default function HistoryPage() {
                                 {groupedItems[category].map((item, idx) => {
                                     const status = getItemStatus(item.name);
                                     return (
-                                        <div key={idx} className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
+                                        <div key={idx} className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
                                             <div>
                                                 <p className="font-medium text-slate-900">{item.name}</p>
                                                 {item.quantity && <p className="text-xs text-slate-400">{item.quantity}</p>}
@@ -198,6 +213,13 @@ export default function HistoryPage() {
 
                                             {!status && (
                                                 <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => handleDeleteFromHistory(item.name)}
+                                                        className="h-8 w-8 flex items-center justify-center rounded-full text-slate-300 hover:bg-red-50 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
+                                                        title="Borrar del historial"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
                                                     <button
                                                         onClick={() => setRecurrenceItem(item)}
                                                         className={`h-8 w-8 flex items-center justify-center rounded-full transition-all shadow-sm ${products[item.name.toLowerCase()]?.recurrence_interval
