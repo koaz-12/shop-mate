@@ -13,21 +13,12 @@ export function useRealtimeSync() {
     useEffect(() => {
         if (!householdId) return;
 
-        // Cleanup existing if ID changed or we are refreshing
+        // 1. Force cleanup of any existing channel for this household to guarantee fresh listeners
         const topic = `realtime:sync-${householdId}`;
         const existingChannel = supabase.getChannels().find(c => c.topic === topic);
-
         if (existingChannel) {
-            console.log('🔄 Checking existing channel:', topic, existingChannel.state);
-            if (existingChannel.state === 'joined') {
-                setConnectionStatus('connected');
-                channelRef.current = existingChannel;
-                return;
-            }
-            // If closed or error, remove it
-            if (existingChannel.state === 'closed' || existingChannel.state === 'errored') {
-                supabase.removeChannel(existingChannel);
-            }
+            console.log('🧹 Cleaning stale channel before mount:', topic);
+            supabase.removeChannel(existingChannel);
         }
 
         console.log('🔌 Initialize Realtime Connection:', householdId);
@@ -42,11 +33,14 @@ export function useRealtimeSync() {
                     event: '*',
                     schema: 'public',
                     table: 'items',
-                    filter: `household_id=eq.${householdId}`,
+                    // Removed filter string to rely on RLS and avoid syntax issues
                 },
                 (payload) => {
                     console.log('📥 Realtime Payload:', payload);
                     setConnectionStatus('connected');
+
+                    // Note: RLS ensures we only receive our items.
+                    // Redundant client-side check is unnecessary for security but harmless.
 
                     if (payload.eventType === 'INSERT') {
                         addItem(payload.new as any);

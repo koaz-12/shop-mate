@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 30: Deployment Trigger for Clean Build (Syntax Fix)
+// Cache Bust 31: Deployment Trigger for Aggressive Sync (No Filter, Fresh Channel)
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
