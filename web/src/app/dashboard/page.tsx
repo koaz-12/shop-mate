@@ -26,7 +26,7 @@ export default function DashboardPage() {
                 .lte('next_occurrence', now);
 
             if (dueProducts && dueProducts.length > 0) {
-                for (const p of dueProducts) {
+                for (const p of (dueProducts as any[])) {
                     await supabase.from('items').insert({
                         household_id: household.id,
                         name: p.name,
@@ -40,7 +40,7 @@ export default function DashboardPage() {
                     nextDate.setDate(nextDate.getDate() + (p.recurrence_interval || 7));
                     await supabase.from('household_products').update({
                         next_occurrence: nextDate.toISOString()
-                    }).eq('id', p.id);
+                    } as any).eq('id', p.id);
                 }
             }
         };
