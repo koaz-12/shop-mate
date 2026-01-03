@@ -49,7 +49,7 @@ export default function LoyaltyPage() {
         setCode('');
 
         // @ts-ignore
-        const { error } = await supabase.from('loyalty_cards').insert({
+        const { error } = await supabase.from('loyalty_cards' as any).insert({
             id: newCard.id,
             name: newCard.name,
             code: newCard.code,
@@ -70,7 +70,7 @@ export default function LoyaltyPage() {
         if (!confirm('¿Borrar tarjeta?')) return;
 
         removeLoyaltyCard(id); // Optimistic
-        const { error } = await supabase.from('loyalty_cards').delete().eq('id', id);
+        const { error } = await supabase.from('loyalty_cards' as any).delete().eq('id', id);
         if (error) console.error(error);
     };
 

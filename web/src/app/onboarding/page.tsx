@@ -28,7 +28,7 @@ export default function OnboardingPage() {
             const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
             const { data: household, error: hhError } = await supabase
-                .from('households')
+                .from('households' as any)
                 .insert({ name: familyName, invite_code: code })
                 .select()
                 .single();
@@ -36,7 +36,7 @@ export default function OnboardingPage() {
             if (hhError) throw hhError;
 
             const { error: memberError } = await supabase
-                .from('household_members')
+                .from('household_members' as any)
                 .insert({
                     user_id: user.id,
                     household_id: household.id,
@@ -62,7 +62,7 @@ export default function OnboardingPage() {
         try {
             // Find household by code
             const { data: household, error: hhError } = await supabase
-                .from('households')
+                .from('households' as any)
                 .select()
                 .eq('invite_code', inviteCode.trim().toUpperCase())
                 .single();
@@ -70,7 +70,7 @@ export default function OnboardingPage() {
             if (hhError || !household) throw new Error('Invalid invite code');
 
             const { error: memberError } = await supabase
-                .from('household_members')
+                .from('household_members' as any)
                 .insert({
                     user_id: user.id,
                     household_id: household.id,
