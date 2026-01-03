@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 26: Deployment Trigger for Store Duplicates and Toasts
+// Cache Bust 27: Deployment Trigger for Final Sync Verification
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
