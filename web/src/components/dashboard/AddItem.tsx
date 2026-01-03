@@ -17,7 +17,7 @@ export default function AddItem() {
     const [isExpanded, setIsExpanded] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
     const supabase = createClient();
-    const { household, user, activeView, items, categories, catalog, currentList } = useStore();
+    const { household, user, activeView, items, categories, catalog, currentList, addItem } = useStore();
     const { isListening, transcript, startListening, isSupported, setTranscript } = useVoiceInput();
 
     // Voice Effect
@@ -128,8 +128,15 @@ export default function AddItem() {
         }
 
         // @ts-ignore
-        await supabase.from('items' as any).insert(newItem as any);
-        clearForm();
+        const { data, error } = await supabase.from('items' as any).insert(newItem as any).select().single();
+
+        if (data) {
+            addItem(data);
+            clearForm();
+        } else if (error) {
+            console.error('Error adding item:', error);
+            alert('Error agregando ítem');
+        }
     };
 
     const clearForm = () => {
