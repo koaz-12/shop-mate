@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 9: Deployment Trigger for AddItem Store Fix build refresh (Cache Bust 2)
+// Cache Bust 10: Deployment Trigger for Realtime Sync Fix build refresh (Cache Bust 2)
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
