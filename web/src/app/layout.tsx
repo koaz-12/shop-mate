@@ -7,6 +7,7 @@ import BottomNav from '@/components/BottomNav';
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeApplicator from '@/components/ThemeApplicator';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(inter.className, 'min-h-screen bg-slate-50 text-slate-900')}>
+        <Toaster position="bottom-center" />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

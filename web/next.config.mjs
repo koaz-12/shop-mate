@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 21: Deployment Trigger for Wallet Button Restoration
+// Cache Bust 23: Deployment Trigger for Toaster Dependency
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
