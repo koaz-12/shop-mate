@@ -22,6 +22,9 @@ interface AppState {
     themeColor: 'emerald' | 'blue' | 'violet' | 'rose' | 'orange';
     connectionStatus: 'connected' | 'disconnected' | 'connecting';
     pendingActions: PendingAction[];
+    refreshTrigger: number;
+
+    // Actions
     setUser: (user: User | null) => void;
     setProfile: (profile: Profile | null) => void;
     setHousehold: (household: Household | null) => void;
@@ -38,8 +41,10 @@ interface AppState {
     setAutoAddRecurring: (enabled: boolean) => void;
     setThemeColor: (color: 'emerald' | 'blue' | 'violet' | 'rose' | 'orange') => void;
     setConnectionStatus: (status: 'connected' | 'disconnected' | 'connecting') => void;
+    triggerRefresh: () => void;
     queueAction: (action: PendingAction) => void;
     removeAction: (actionId: string) => void;
+
     addItem: (item: Item) => void;
     updateItem: (itemId: string, updates: Partial<Item>) => void;
     removeItem: (itemId: string) => void;
@@ -68,6 +73,8 @@ export const useStore = create<AppState>()(
             themeColor: 'emerald',
             connectionStatus: 'disconnected',
             pendingActions: [],
+            refreshTrigger: 0,
+
             setUser: (user) => set({ user }),
             setProfile: (profile) => set({ profile }),
             setHousehold: (household) => set({ household }),
@@ -84,6 +91,7 @@ export const useStore = create<AppState>()(
             setAutoAddRecurring: (autoAddRecurring) => set({ autoAddRecurring }),
             setThemeColor: (themeColor) => set({ themeColor }),
             setConnectionStatus: (status) => set({ connectionStatus: status }),
+            triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
             queueAction: (action) => set((state) => ({ pendingActions: [...state.pendingActions, action] })),
             removeAction: (id) => set((state) => ({ pendingActions: state.pendingActions.filter(a => a.id !== id) })),
             addItem: (item) => set((state) => {
@@ -101,7 +109,7 @@ export const useStore = create<AppState>()(
             removeLoyaltyCard: (cardId) =>
                 set((state) => ({ loyaltyCards: state.loyaltyCards.filter((c) => c.id !== cardId) })),
             reset: () => set({
-                user: null, profile: null, household: null, members: [], items: [], categories: [], catalog: [], lists: [], currentList: null, loyaltyCards: [], activeView: 'shopping-list', isLoading: false, hapticFeedback: true, pendingActions: []
+                user: null, profile: null, household: null, members: [], items: [], categories: [], catalog: [], lists: [], currentList: null, loyaltyCards: [], activeView: 'shopping-list', isLoading: false, hapticFeedback: true, pendingActions: [], refreshTrigger: 0
             }),
         }),
         {
@@ -120,6 +128,7 @@ export const useStore = create<AppState>()(
                 autoAddRecurring: state.autoAddRecurring,
                 themeColor: state.themeColor,
                 pendingActions: state.pendingActions,
+                // Do NOT persist refreshTrigger, it should be 0 on load
             }),
         }
     )

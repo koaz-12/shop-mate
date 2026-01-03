@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 28: Deployment Trigger for Singleton Client Refactor
+// Cache Bust 29: Deployment Trigger for Manual Reconnect & Stability
 const nextConfig = {
     reactStrictMode: true,
     typescript: {

@@ -1,11 +1,13 @@
+```typescript
 import { useRef } from 'react';
-import { Settings, User as UserIcon, Wallet } from 'lucide-react';
+import { Wallet, Settings, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/store/useStore';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 export default function Header() {
-    const { user, profile, connectionStatus } = useStore();
+    const { user, profile, connectionStatus, triggerRefresh } = useStore(); // Destructured triggerRefresh
     const router = useRouter();
 
     const initial = profile?.full_name ? profile.full_name[0].toUpperCase() : user?.email?.[0].toUpperCase() || '?';
@@ -14,6 +16,11 @@ export default function Header() {
         if (connectionStatus === 'connected') return 'bg-emerald-400';
         if (connectionStatus === 'connecting') return 'bg-amber-400 animate-pulse';
         return 'bg-rose-500';
+    };
+
+    const handleReconnect = () => {
+        toast.loading('Reconectando...', { duration: 2000 });
+        triggerRefresh();
     };
 
     return (
@@ -38,7 +45,7 @@ export default function Header() {
 
                 {/* Connection Status Indicator */}
                 <div
-                    className={`w-2 h-2 rounded-full ${getStatusColor()} shadow-sm transition-colors duration-500`}
+                    className={`w - 2 h - 2 rounded - full ${ getStatusColor() } shadow - sm transition - colors duration - 500`}
                     title={connectionStatus === 'connected' ? 'En línea' : 'Sin conexión'}
                 />
 
