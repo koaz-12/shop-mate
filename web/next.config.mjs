@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 3: Deployment Trigger for Settings/Theme Fix build refresh (Cache Bust 2)
+// Cache Bust 4: Deployment Trigger for Join Logic Fix build refresh (Cache Bust 2)
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
