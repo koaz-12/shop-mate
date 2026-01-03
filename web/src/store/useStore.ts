@@ -20,6 +20,7 @@ interface AppState {
     hapticFeedback: boolean;
     autoAddRecurring: boolean;
     themeColor: 'emerald' | 'blue' | 'violet' | 'rose' | 'orange';
+    connectionStatus: 'connected' | 'disconnected' | 'connecting';
     setUser: (user: User | null) => void;
     setProfile: (profile: Profile | null) => void;
     setHousehold: (household: Household | null) => void;
@@ -35,6 +36,7 @@ interface AppState {
     setHapticFeedback: (enabled: boolean) => void;
     setAutoAddRecurring: (enabled: boolean) => void;
     setThemeColor: (color: 'emerald' | 'blue' | 'violet' | 'rose' | 'orange') => void;
+    setConnectionStatus: (status: 'connected' | 'disconnected' | 'connecting') => void;
     addItem: (item: Item) => void;
     updateItem: (itemId: string, updates: Partial<Item>) => void;
     removeItem: (itemId: string) => void;
@@ -61,6 +63,7 @@ export const useStore = create<AppState>()(
             hapticFeedback: true,
             autoAddRecurring: false,
             themeColor: 'emerald',
+            connectionStatus: 'disconnected',
             setUser: (user) => set({ user }),
             setProfile: (profile) => set({ profile }),
             setHousehold: (household) => set({ household }),
@@ -76,6 +79,7 @@ export const useStore = create<AppState>()(
             setHapticFeedback: (hapticFeedback) => set({ hapticFeedback }),
             setAutoAddRecurring: (autoAddRecurring) => set({ autoAddRecurring }),
             setThemeColor: (themeColor) => set({ themeColor }),
+            setConnectionStatus: (status) => set({ connectionStatus: status }),
             addItem: (item) => set((state) => ({ items: [item, ...state.items] })),
             updateItem: (itemId, updates) =>
                 set((state) => ({

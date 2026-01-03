@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 18: Deployment Trigger for Sync Restoration & UI Refresh
+// Cache Bust 19: Deployment Trigger for Connection Indicator
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
