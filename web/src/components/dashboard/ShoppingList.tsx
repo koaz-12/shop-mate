@@ -1,16 +1,15 @@
-'use client';
-
 import { useState, useMemo, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { Item } from '@/types';
 import SwipeableListItem from './SwipeableListItem';
-import { Coffee, Package, ShoppingCart, RefreshCcw, Trash2, ArrowRight, MoreVertical, Check, Share2 } from 'lucide-react';
+import { Coffee, Package, ShoppingCart, RefreshCcw, Trash2, ArrowRight, MoreVertical, Check, Share2, CheckSquare } from 'lucide-react';
 import { useItems } from '@/hooks/useItems';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import EditItemModal from './EditItemModal';
 import EmptyState from './EmptyState';
+import BulkActionsBar from './BulkActionsBar';
 
 export default function ShoppingList() {
     const { items, household, currentList, activeView, setActiveView } = useStore();
@@ -24,6 +23,10 @@ export default function ShoppingList() {
     const [editingItem, setEditingItem] = useState<Item | null>(null);
     const [lastDeletedItem, setLastDeletedItem] = useState<Item | null>(null);
     const [showUndoToast, setShowUndoToast] = useState(false);
+
+    // Selection State
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
+    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
     // Subscription only (CRUD via hooks)
     const supabase = createClient();
@@ -67,10 +70,7 @@ export default function ShoppingList() {
         const groups: Record<string, Item[]> = {};
         filteredItems.forEach(item => {
             let cat = item.category || 'Otros';
-            if (sortBy !== 'category') cat = 'Listado'; // Flat list if explicitly sorting by other means? Or keep categories? 
-            // User usually prefers categories. Let's keep categories unless name/price sort overrides it visually?
-            // Actually usually sort is WITHIN categories or Global.
-            // Let's do Global sort if sort != category.
+            if (sortBy !== 'category') cat = 'Listado';
 
             if (!groups[cat]) groups[cat] = [];
             groups[cat].push(item);
@@ -83,8 +83,6 @@ export default function ShoppingList() {
     // Undo Logic (Simple Revert)
     const handleUndoDelete = async () => {
         if (!lastDeletedItem) return;
-        // Re-inject
-        // Implementation note: softDeleteItem sets deleted_at. We just unset it.
         if (navigator.vibrate) navigator.vibrate(5);
 
         updateItemDetails(lastDeletedItem.id, { deleted_at: null });
@@ -92,12 +90,47 @@ export default function ShoppingList() {
         setLastDeletedItem(null);
     };
 
+    // Bulk Handlers
+    const handleToggleSelection = (id: string) => {
+        const newSet = new Set(selectedItems);
+        if (newSet.has(id)) newSet.delete(id);
+        else newSet.add(id);
+        setSelectedItems(newSet);
+        if (navigator.vibrate) navigator.vibrate(5);
+    };
+
+    const handleBulkDelete = async () => {
+        if (!confirm(`¿Borrar ${selectedItems.size} elementos?`)) return;
+
+        const ids = Array.from(selectedItems);
+        ids.forEach(id => softDeleteItem(id));
+
+        setSelectedItems(new Set());
+        setIsSelectionMode(false);
+        if (navigator.vibrate) navigator.vibrate(10);
+    };
+
+    const handleBulkMove = async () => {
+        const ids = Array.from(selectedItems);
+        const targetPantry = activeView === 'shopping-list';
+
+        // Optimistic Loop
+        ids.forEach(id => {
+            const item = items.find(i => i.id === id);
+            if (item) toggleItem(id, item.in_pantry);
+        });
+
+        setSelectedItems(new Set());
+        setIsSelectionMode(false);
+        if (navigator.vibrate) navigator.vibrate(10);
+    };
+
     if (!household || !currentList) return null;
 
     return (
         <div className="pb-32 pt-20 px-4 space-y-6">
 
-            {/* View Switcher */}
+            {/* View Switcher & Selection Toggle */}
             <div className="flex gap-2 mb-4 sticky top-[72px] z-10">
                 <div className="flex-1 flex p-1 bg-slate-100 rounded-2xl shadow-sm">
                     <button
@@ -125,10 +158,24 @@ export default function ShoppingList() {
                         <span className="hidden sm:inline">Despensa</span>
                     </button>
                 </div>
+
+                <button
+                    onClick={() => {
+                        setIsSelectionMode(!isSelectionMode);
+                        setSelectedItems(new Set());
+                    }}
+                    className={cn(
+                        "w-14 flex items-center justify-center rounded-2xl transition-all shadow-sm",
+                        isSelectionMode ? "bg-slate-800 text-white shadow-slate-300" : "bg-white text-slate-400 hover:text-slate-600 border border-slate-100"
+                    )}
+                    title={isSelectionMode ? "Salir de selección" : "Seleccionar varios"}
+                >
+                    <CheckSquare size={20} />
+                </button>
             </div>
 
             {/* Shopping Button Banner */}
-            {activeView === 'shopping-list' && filteredItems.length > 0 && (
+            {!isSelectionMode && activeView === 'shopping-list' && filteredItems.length > 0 && (
                 <div className="mb-2">
                     <button
                         onClick={() => router.push('/shopping')}
@@ -146,7 +193,7 @@ export default function ShoppingList() {
             )}
 
             {/* List Content */}
-            <div className="space-y-6">
+            <div className={`space-y-6 ${isSelectionMode ? 'mb-24' : ''}`}>
                 {filteredItems.length === 0 ? (
                     <EmptyState
                         type={activeView === 'shopping-list' ? "empty-list" : "empty-pantry"}
@@ -174,6 +221,9 @@ export default function ShoppingList() {
                                         }}
                                         onEdit={setEditingItem}
                                         onUpdate={updateItemDetails}
+                                        isSelectionMode={isSelectionMode}
+                                        isSelected={selectedItems.has(item.id)}
+                                        onSelect={() => handleToggleSelection(item.id)}
                                     />
                                 ))}
                             </div>
@@ -210,6 +260,18 @@ export default function ShoppingList() {
                     </div>
                 </div>
             )}
+
+            {/* Bulk Actions Bar */}
+            <BulkActionsBar
+                selectedCount={selectedItems.size}
+                activeView={activeView}
+                onClearSelection={() => {
+                    setSelectedItems(new Set());
+                    setIsSelectionMode(false);
+                }}
+                onDelete={handleBulkDelete}
+                onMove={handleBulkMove}
+            />
         </div>
     );
 }

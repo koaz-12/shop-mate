@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 16: Deployment Trigger for Barcode Memory Logic
+// Cache Bust 17: Deployment Trigger for Bulk Actions Feature
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
