@@ -38,9 +38,9 @@ export default function DashboardPage() {
 
                     const nextDate = new Date();
                     nextDate.setDate(nextDate.getDate() + (p.recurrence_interval || 7));
-                    await supabase.from('household_products').update({
+                    await supabase.from('household_products' as any).update({
                         next_occurrence: nextDate.toISOString()
-                    } as any).eq('id', p.id);
+                    }).eq('id', p.id);
                 }
             }
         };
