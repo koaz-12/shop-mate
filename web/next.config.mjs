@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Redeploy trigger: Force Vercel build refresh (Cache Bust 2)
+// Cache Bust 3: Deployment Trigger for Settings/Theme Fix build refresh (Cache Bust 2)
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
