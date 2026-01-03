@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ShoppingBasket, ChefHat, Wallet, TrendingUp, Users, ArrowRight, Sparkles, ScanBarcode, Zap } from 'lucide-react';
 import Link from 'next/link';
@@ -19,14 +18,20 @@ export default function Home() {
       {/* Navigation */}
       <nav className="fixed w-full z-50 bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm transition-all duration-300">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl p-1.5 text-white shadow-lg shadow-emerald-200">
-              <ShoppingBasket size={22} strokeWidth={2.5} />
+          <Link href="/" className="flex items-center gap-2 group cursor-pointer hover:opacity-90 transition-opacity">
+            <div className="relative w-10 h-10 shadow-lg shadow-emerald-200 rounded-xl overflow-hidden hover:scale-105 transition-transform">
+              <Image
+                src="/icon-192x192.png"
+                alt="ShopMate Logo"
+                width={40}
+                height={40}
+                className="object-cover"
+              />
             </div>
             <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">
               ShopMate
             </span>
-          </div>
+          </Link>
           <div className="flex items-center gap-4">
             <Link href="/login" className="hidden sm:block text-sm font-semibold text-slate-600 hover:text-emerald-600 transition-colors">
               Iniciar Sesión
