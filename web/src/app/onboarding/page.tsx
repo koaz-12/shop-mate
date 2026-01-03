@@ -60,29 +60,36 @@ export default function OnboardingPage() {
         setLoading(true);
 
         try {
-            // Find household by code
-            const { data: household, error: hhError } = await supabase
-                .from('households' as any)
-                .select()
-                .eq('invite_code', inviteCode.trim().toUpperCase())
-                .single();
+            // Call Secure RPC
+            const { data, error } = await supabase.rpc('join_household', {
+                invite_code_input: inviteCode.trim()
+            });
 
-            if (hhError || !household) throw new Error('Invalid invite code');
+            if (error) throw error;
 
-            const { error: memberError } = await supabase
-                .from('household_members' as any)
-                .insert({
-                    user_id: user.id,
-                    household_id: household.id,
-                    role: 'member'
-                });
+            // RPC returns JSON: { success: boolean, message?: string, household_id?: uuid }
+            // @ts-ignore
+            if (data && data.success) {
+                // Now retrieve full household details (allowed by RLS because we are now a member)
+                const { data: fullHousehold, error: fetchError } = await supabase
+                    .from('households' as any)
+                    .select()
+                    // @ts-ignore
+                    .eq('id', data.household_id)
+                    .single();
 
-            if (memberError) throw memberError;
+                if (fetchError) throw fetchError;
 
-            setHousehold(household);
-            router.push('/dashboard');
+                setHousehold(fullHousehold);
+                router.push('/dashboard');
+            } else {
+                // @ts-ignore
+                alert(data?.message || 'Error al unirse a la familia');
+            }
+
         } catch (error: any) {
-            alert(error.message);
+            console.error(error);
+            alert(error.message || 'Error de conexión');
         } finally {
             setLoading(false);
         }
