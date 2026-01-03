@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>ShopMate Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#059467",
+                        "primary-dark": "#047854",
+                        "slate-900": "#0f172a",
+                        "slate-500": "#64748b",
+                        "background-light": "#f8fafc", // Slightly off-white for main bg
+                        "background-dark": "#0f231d",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a3830",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px" },
+                    boxShadow: {
+                        'float': '0 4px 20px -2px rgba(0, 0, 0, 0.1), 0 2px 10px -2px rgba(0, 0, 0, 0.04)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Hide scrollbar for cleaner mobile look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .checkbox-wrapper input:checked + div {
+            background-color: #059467;
+            border-color: #059467;
+        }
+        .checkbox-wrapper input:checked + div svg {
+            display: block;
+        }
+        .checkbox-wrapper input:checked ~ div h4 {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen relative overflow-hidden flex flex-col">
+<!-- Header Section -->
+<header class="bg-surface-light dark:bg-surface-dark px-6 pt-12 pb-6 sticky top-0 z-20 shadow-[0_1px_3px_0_rgba(0,0,0,0.05)]">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<span class="text-primary font-medium text-sm tracking-wide uppercase bg-primary/10 px-2 py-0.5 rounded-md w-fit">Familia Rodriguez</span>
+<h1 class="text-slate-900 dark:text-white text-3xl font-bold tracking-tight">Hola, Alex</h1>
+</div>
+<button aria-label="Perfil de usuario" class="relative group outline-none rounded-full">
+<div class="size-12 rounded-full overflow-hidden border-2 border-white dark:border-background-dark shadow-sm ring-2 ring-transparent group-focus:ring-primary/50 transition-all">
+<img alt="Foto de perfil del usuario sonriendo" class="w-full h-full object-cover" data-alt="User profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7XlPA1gCBCG9Pki9NHy4DyXhOH2aTZJuopKok6kuv6YpFrI5IdHkAkSEAXRAsbz4NA7nH8pBNpDXUkfx2gx4jQnWsPlxVxt7HhhLrHnByGjd6aY3vz5cbDcXdoOvn8CyOW_XfN4iQv9X7zInCNrzB-98NtwF1_81Y_PK-6XocduCxSTl0e9g8HumOoClmhf9eX_-08e0ZcCj3FzKamR-VyGVJfuyqFSRW3f8Cb7P3Rt3EgGdbDzu6XsylZ28-Bbt_KHa8BvifSZuF"/>
+</div>
+<div class="absolute bottom-0 right-0 size-3 bg-primary rounded-full border-2 border-white dark:border-surface-dark"></div>
+</button>
+</div>
+<!-- Quick Stats/Info could go here, but keeping it clean as per request -->
+</header>
+<!-- Main Content: Scrollable List -->
+<main class="flex-1 overflow-y-auto pb-32 no-scrollbar px-4 pt-6">
+<!-- Category: Lácteos -->
+<section class="mb-8">
+<div class="flex items-center gap-2 mb-3 px-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px;">egg_alt</span>
+<h3 class="text-slate-900 dark:text-white font-bold text-lg">Lácteos</h3>
+<span class="bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-300 text-xs font-bold px-2 py-0.5 rounded-full ml-auto">2 ítems</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Item 1 -->
+<div class="group bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-slate-100 dark:border-white/5 flex items-center justify-between transition-transform active:scale-[0.98]">
+<label class="flex items-center gap-4 flex-1 cursor-pointer checkbox-wrapper">
+<input class="peer sr-only" type="checkbox"/>
+<div class="size-6 rounded-full border-2 border-slate-300 dark:border-slate-500 flex items-center justify-center transition-colors bg-white dark:bg-transparent">
+<svg class="w-3.5 h-3.5 text-white hidden pointer-events-none" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="flex flex-col select-none">
+<h4 class="text-slate-900 dark:text-white font-semibold text-base leading-tight transition-colors">Leche Entera</h4>
+<span class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">face_3</span>
+                                Pedido por Mamá
+                            </span>
+</div>
+</label>
+<button aria-label="Editar item" class="text-slate-400 hover:text-primary p-2 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+</button>
+</div>
+<!-- Item 2 -->
+<div class="group bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-slate-100 dark:border-white/5 flex items-center justify-between transition-transform active:scale-[0.98]">
+<label class="flex items-center gap-4 flex-1 cursor-pointer checkbox-wrapper">
+<input class="peer sr-only" type="checkbox"/>
+<div class="size-6 rounded-full border-2 border-slate-300 dark:border-slate-500 flex items-center justify-center transition-colors bg-white dark:bg-transparent">
+<svg class="w-3.5 h-3.5 text-white hidden pointer-events-none" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="flex flex-col select-none">
+<h4 class="text-slate-900 dark:text-white font-semibold text-base leading-tight transition-colors">Queso Gouda</h4>
+<span class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">face_6</span>
+                                Pedido por Alex
+                            </span>
+</div>
+</label>
+<button aria-label="Editar item" class="text-slate-400 hover:text-primary p-2 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Category: Limpieza -->
+<section class="mb-8">
+<div class="flex items-center gap-2 mb-3 px-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px;">cleaning_services</span>
+<h3 class="text-slate-900 dark:text-white font-bold text-lg">Limpieza</h3>
+<span class="bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-300 text-xs font-bold px-2 py-0.5 rounded-full ml-auto">1 ítem</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Item 3 -->
+<div class="group bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-slate-100 dark:border-white/5 flex items-center justify-between transition-transform active:scale-[0.98]">
+<label class="flex items-center gap-4 flex-1 cursor-pointer checkbox-wrapper">
+<input class="peer sr-only" type="checkbox"/>
+<div class="size-6 rounded-full border-2 border-slate-300 dark:border-slate-500 flex items-center justify-center transition-colors bg-white dark:bg-transparent">
+<svg class="w-3.5 h-3.5 text-white hidden pointer-events-none" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="flex flex-col select-none">
+<h4 class="text-slate-900 dark:text-white font-semibold text-base leading-tight transition-colors">Detergente Líquido</h4>
+<span class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">face</span>
+                                Pedido por Papá
+                            </span>
+</div>
+</label>
+<button aria-label="Editar item" class="text-slate-400 hover:text-primary p-2 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Empty State Example (Hidden by default, easy to toggle for demo) -->
+<!-- 
+        <div class="flex flex-col items-center justify-center mt-12 px-8 text-center opacity-50">
+            <div class="bg-slate-100 dark:bg-white/5 p-6 rounded-full mb-4">
+                 <span class="material-symbols-outlined text-slate-400" style="font-size: 48px;">shopping_basket</span>
+            </div>
+            <h3 class="text-slate-900 dark:text-white font-bold text-lg mb-1">¡Todo listo!</h3>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">No hay nada pendiente en la lista. Disfruta tu día.</p>
+        </div>
+        -->
+</main>
+<!-- Floating Bottom Bar -->
+<div class="fixed bottom-0 left-0 right-0 p-4 pb-8 z-30 pointer-events-none">
+<div class="max-w-md mx-auto pointer-events-auto">
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-float border border-slate-100 dark:border-white/10 p-2 pl-4 flex items-center gap-3">
+<div class="flex-1">
+<input aria-label="Añadir item rápido" class="w-full bg-transparent border-none text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-0 p-0 text-base font-medium" placeholder="Añadir rápido..." type="text"/>
+</div>
+<button aria-label="Añadir" class="bg-primary hover:bg-primary-dark text-white rounded-xl size-12 flex items-center justify-center shadow-lg shadow-primary/30 transition-all active:scale-95">
+<span class="material-symbols-outlined" style="font-size: 28px;">add</span>
+</button>
+</div>
+</div>
+<!-- Safe area background blur for behind the bar -->
+<div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background-light via-background-light/95 to-transparent dark:from-background-dark dark:via-background-dark/95 -z-10 pointer-events-none"></div>
+</div>
+</body></html>

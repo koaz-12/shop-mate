@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopMate - Historial de Compras</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#059467",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f231d",
+                        "slate-900": "#0f172a",
+                        "slate-700": "#334155",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for horizontal scroll areas */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-slate-900 dark:text-white h-screen overflow-hidden flex flex-col">
+<!-- Fixed Header Section -->
+<header class="flex-none bg-white dark:bg-[#0f231d] z-20 shadow-sm relative">
+<!-- Top App Bar -->
+<div class="flex items-center p-4 pb-2 justify-between">
+<button class="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-2xl">close</span>
+</button>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Historial de Compras</h2>
+<button class="flex w-12 items-center justify-center shrink-0">
+<p class="text-primary text-base font-bold leading-normal tracking-[0.015em]">Listo</p>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="px-4 py-2">
+<label class="flex flex-col min-w-40 h-12 w-full">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-sm">
+<div class="text-slate-500 dark:text-slate-400 flex border-none bg-[#f0f5f3] dark:bg-[#1a2e29] items-center justify-center pl-4 rounded-l-xl border-r-0">
+<span class="material-symbols-outlined text-2xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#f0f5f3] dark:bg-[#1a2e29] focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Buscar productos..." value=""/>
+</div>
+</label>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-3 px-4 py-3 overflow-x-auto no-scrollbar">
+<!-- Active Chip -->
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-900 dark:bg-white pl-5 pr-5 shadow-sm transition-transform active:scale-95">
+<p class="text-white dark:text-slate-900 text-sm font-medium leading-normal">Todo</p>
+</button>
+<!-- Inactive Chips -->
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#1a2e29] border border-slate-200 dark:border-slate-700 pl-5 pr-5 shadow-sm transition-transform active:scale-95">
+<p class="text-slate-900 dark:text-white text-sm font-medium leading-normal">Frutas</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#1a2e29] border border-slate-200 dark:border-slate-700 pl-5 pr-5 shadow-sm transition-transform active:scale-95">
+<p class="text-slate-900 dark:text-white text-sm font-medium leading-normal">Verduras</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#1a2e29] border border-slate-200 dark:border-slate-700 pl-5 pr-5 shadow-sm transition-transform active:scale-95">
+<p class="text-slate-900 dark:text-white text-sm font-medium leading-normal">Lácteos</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#1a2e29] border border-slate-200 dark:border-slate-700 pl-5 pr-5 shadow-sm transition-transform active:scale-95">
+<p class="text-slate-900 dark:text-white text-sm font-medium leading-normal">Carnes</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#1a2e29] border border-slate-200 dark:border-slate-700 pl-5 pr-5 shadow-sm transition-transform active:scale-95">
+<p class="text-slate-900 dark:text-white text-sm font-medium leading-normal">Limpieza</p>
+</button>
+</div>
+</header>
+<!-- Scrollable Grid Content -->
+<main class="flex-1 overflow-y-auto p-4 pb-24">
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+<!-- Item 1: Selected -->
+<div class="group relative flex flex-col gap-3 rounded-2xl bg-white dark:bg-[#1a2e29] p-3 shadow-md ring-2 ring-primary transition-all active:scale-95 cursor-pointer">
+<div class="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-primary shadow-sm ring-2 ring-white dark:ring-[#0f231d]">
+<span class="material-symbols-outlined text-white text-sm font-bold">check</span>
+</div>
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-gray-100 dark:bg-gray-800" data-alt="Carton of fresh whole milk" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD1JRPHfGieyW1LM8GAxj31f35f10hBlWbbMJkRLfokiOx8svDUChL2ZwAQUz9GseG76SDhm_08_SQQMGgy-6j_BftJObPuh4XtCaJynLDfRtYQF_d8X38gQka5hHIaCycIHA7o4skyDvSf9fijbgftc1qLudEF3tGO6CPtmTLmuJ53giVWobwlYdmEHxrNnL61V9YHjArusQQ8H7n2DWQLdVMtwqkCVeCyP1R9PlC93kS79ivVBVbNFRCkcmK1XRqRhB9OyR3LFD8x");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-base font-semibold leading-tight line-clamp-2">Leche Entera</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Última vez: Ayer</p>
+</div>
+</div>
+<!-- Item 2: Unselected -->
+<div class="group relative flex flex-col gap-3 rounded-2xl bg-white dark:bg-[#1a2e29] p-3 shadow-sm ring-1 ring-transparent hover:ring-slate-200 dark:hover:ring-slate-700 transition-all active:scale-95 cursor-pointer">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-gray-100 dark:bg-gray-800" data-alt="Loaf of sliced whole wheat bread" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmgBJNwLKiOKDBek0WH2d76mdhQayhSi47ryFPEy7WLuejyaaNC0ynKwy5dTz6WmNEP4Fmu7E7uc8IRh51qlqCW2L5lsrQWs95lkvXkC3lS2mW-V2IIHyJhYtIAfLSKbwCCNC9Zg7j5FeQfnsBETAfvphsm6W2I3eUlXs-uWUw6v13KzIsdk4Gb3orGD-PNc8tll0G-RCFkI51e4t3Xu_lurSJgzYeNeR4iwLaWK2jMOePgcV95-7tzwpTP4vnW-lP1Pdfunv2o_9H");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-base font-medium leading-tight line-clamp-2">Pan Integral</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Última vez: Lun</p>
+</div>
+</div>
+<!-- Item 3: Selected -->
+<div class="group relative flex flex-col gap-3 rounded-2xl bg-white dark:bg-[#1a2e29] p-3 shadow-md ring-2 ring-primary transition-all active:scale-95 cursor-pointer">
+<div class="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-primary shadow-sm ring-2 ring-white dark:ring-[#0f231d]">
+<span class="material-symbols-outlined text-white text-sm font-bold">check</span>
+</div>
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-gray-100 dark:bg-gray-800" data-alt="Fresh red apples in a group" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC4DXc2oDe4SY2B7U6Qu0xGj0GpPouUKqYVSz8WF0-0xDWQzG0BT2u_l9BzvJ8wZFf4BnkKfqcMjzzv8ntCax-2iWTBZCx2-fABarpyeYZ1OZ_XJYYzgvVCVP-rhw9lTLJYy-vmTjwoY9UsHLhC1X90GtjSifRQ6kdBUE3Yuv_zA54fuqJ5X4aA2N0V1zWWoVvgYuAY-hQVlVYVJafVDC2l1bP2cs2cf4hPO-fAYzFj69wAj-a7B3A9sjtnD6-FLdN9wU-eAq4Mp-4H");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-base font-semibold leading-tight line-clamp-2">Manzanas Rojas</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Última vez: 3 días</p>
+</div>
+</div>
+<!-- Item 4: Unselected -->
+<div class="group relative flex flex-col gap-3 rounded-2xl bg-white dark:bg-[#1a2e29] p-3 shadow-sm ring-1 ring-transparent hover:ring-slate-200 dark:hover:ring-slate-700 transition-all active:scale-95 cursor-pointer">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-gray-100 dark:bg-gray-800" data-alt="Raw chicken breast meat" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmLF0s5H-xxLQ0bMI3Nm765QYdthPUaAvGP7x_uxByHHt6kfjvXG8vWLLb74lz1kbPfInnuylalxHJUJXbxMMz1zbZ8jGydoW7ZsmR2BPpaS3l6UlcykCbQXbE0d_gldGKeA-Mt7SqOzavcyjZK9yYovGjF7Ab6io369o34dgjVEPb8QkodCCnlPQ6ZFS3rXS84gWR77kOlo-m3ME2CCDAKq0ISrTIkYBGVlNGcKXdXqwm8jHR-Ax95VsCfN_g-Hm_RaUOGaig64K_");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-base font-medium leading-tight line-clamp-2">Pechuga de Pollo</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Última vez: 1 sem</p>
+</div>
+</div>
+<!-- Item 5: Selected -->
+<div class="group relative flex flex-col gap-3 rounded-2xl bg-white dark:bg-[#1a2e29] p-3 shadow-md ring-2 ring-primary transition-all active:scale-95 cursor-pointer">
+<div class="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-primary shadow-sm ring-2 ring-white dark:ring-[#0f231d]">
+<span class="material-symbols-outlined text-white text-sm font-bold">check</span>
+</div>
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-gray-100 dark:bg-gray-800" data-alt="Fresh orange juice in glass" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDi8fyVw3Ukt_Hk5PowpPxKUY0Xr1ei9MuFvHAL_4Rd5HRFWw7vSr17WX9bG-KaEjg2Gs0bl1PHNNsg4uvBk34GJYtUWbFbIC9RjjP5ykGILBkrzLeQZm6bnzmvfg8tftzzV1Iln99YHgwdadXn8GDKEkRxgT8Z-jkU-FZnT0OzXG1P-g2qru3aWDJGiQWBBIELoPFzIUxs-z0SATyCXUiOwNcHb8t19WICh5gnG8vH_leloilBozKxkzjH_jXlhHi3gdrDCeX3f-kI");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-base font-semibold leading-tight line-clamp-2">Jugo de Naranja</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Última vez: 1 sem</p>
+</div>
+</div>
+<!-- Item 6: Unselected -->
+<div class="group relative flex flex-col gap-3 rounded-2xl bg-white dark:bg-[#1a2e29] p-3 shadow-sm ring-1 ring-transparent hover:ring-slate-200 dark:hover:ring-slate-700 transition-all active:scale-95 cursor-pointer">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-gray-100 dark:bg-gray-800" data-alt="Dish soap bottle on counter" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCqk6k1orWAKUjFsytbT5gAdSXQ24UNC7sSk5tLlpR3oxjj0Cg2duo1p1sIOmXHZstLGBqW6qt64p1Xv0AxAbubbj9jNGIpxbJ4mIsQY7l4y7ygqjFNguch-0atgDC_EApxAN3dku-8pFrJRI7nwEwdxBc61gn6Krtzq4Nu2ws2_QkkbIb2n5vk8qYoYwEfcieTGkHU4IO_GEUvoSgK82at-lKSwjg84EQG4bhkbwcS_b_K5F5kyBxLxu7PkQDJyqgq6q1mou_DYCYI");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-base font-medium leading-tight line-clamp-2">Jabón Trastes</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Última vez: 2 sem</p>
+</div>
+</div>
+<!-- Item 7: Unselected -->
+<div class="group relative flex flex-col gap-3 rounded-2xl bg-white dark:bg-[#1a2e29] p-3 shadow-sm ring-1 ring-transparent hover:ring-slate-200 dark:hover:ring-slate-700 transition-all active:scale-95 cursor-pointer">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-gray-100 dark:bg-gray-800" data-alt="Bunch of bananas" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAdRRRQxCI1XzDNf1ow2yfA87es_1h4shC9mWq51Bd5PjHhzShzOryZOkpniO4exImIpM2aU2LTjeJ9F0xvBW6HQmXAu_HWgdHv2lBOWFd_s8gpJiJSZrq_VGze829r89OlCdL2rRiL7qow1bNgzk-XPNAivchDaWaoeGCwRQOk2pU8n0VgjcqIJLsHfgikpUVRcHDYYcXEaF3JH3THO6fibnKQo5kqR3jeDCl6484ajdDl05UvvTm72HtFmnvFNzS0rI9ee6Li5N2P");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-base font-medium leading-tight line-clamp-2">Plátanos</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Última vez: 2 sem</p>
+</div>
+</div>
+<!-- Item 8: Unselected -->
+<div class="group relative flex flex-col gap-3 rounded-2xl bg-white dark:bg-[#1a2e29] p-3 shadow-sm ring-1 ring-transparent hover:ring-slate-200 dark:hover:ring-slate-700 transition-all active:scale-95 cursor-pointer">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-gray-100 dark:bg-gray-800" data-alt="Pack of greek yogurt cups" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCETBB7hgnCvmjV4WXWhHhkbXPKcsCTGrJaw79KA8Bg-2O0OyLbWC-9Qj74LrUu4qoYrdBqaS2eQ0fIfejqzD0gfDeJRcQckfRGBB2boG3lYoMRbvmukMzbifZr31FXYjfpgccQLxkddDTS0kAwxCuCqfxA3HP2PiM_wWAHOt3X2nF3cptKG9M0wCicCYCNbrTJ0ajY1TrHxIQ7nM9xB05o4Zh9FrS9GQz_C74-GocDd0olEA7GEmGpk7-7JWtErVDGBvDyhLXyG9fR");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-base font-medium leading-tight line-clamp-2">Yogurt Griego</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Última vez: 3 sem</p>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB / Action Bar -->
+<div class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark pt-10 pointer-events-none flex justify-center">
+<button class="pointer-events-auto shadow-xl shadow-primary/30 flex max-w-[480px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 bg-primary hover:bg-[#047a55] transition-colors text-white text-base font-bold leading-normal tracking-[0.015em] min-w-0 gap-3 active:scale-95 transform duration-100">
+<span class="material-symbols-outlined text-2xl">add</span>
+<span class="truncate">Agregar (3) a la lista</span>
+</button>
+</div>
+</body></html>

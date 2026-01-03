@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Configuración de Familia - ShopMate</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#059467",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f231d",
+                        "card-light": "#ffffff",
+                        "card-dark": "#162f28",
+                        "text-main": "#111816",
+                        "text-muted": "#637588",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen">
+<!-- Main Container -->
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto shadow-2xl bg-background-light dark:bg-background-dark">
+<!-- Top AppBar -->
+<div class="sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
+<button class="flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-primary">
+<span class="material-symbols-outlined text-2xl font-medium">arrow_back_ios_new</span>
+</button>
+<h1 class="text-text-main dark:text-white text-lg font-bold tracking-tight">Configuración de Familia</h1>
+<div class="w-10"></div> <!-- Spacer for alignment -->
+</div>
+<div class="flex-1 px-4 pb-8 pt-2 space-y-6">
+<!-- MIEMBROS Section -->
+<section>
+<div class="px-2 pb-2 pt-4 flex items-center justify-between">
+<h3 class="text-text-muted dark:text-gray-400 text-xs font-bold tracking-wider uppercase">Miembros</h3>
+<span class="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">3 activos</span>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
+<!-- Member 1 (Admin) -->
+<div class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-12 w-12 border-2 border-white dark:border-gray-700 shadow-sm" data-alt="Portrait of a woman smiling outdoors" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBQz68Oefwtdkh30lxKIO7qBZpAaYjqAnkyhbMG5cy5Zkn4SBWmycueHR5z8Qq0Ec1j5mTfvzmucTgvGBT6P9eF0paB7EqEOEL3-dzJRDVebK5g_DYuu8oB2pmCNjS8-gMMFT3Beskrvi0Z197TX8j8Q7z2SzOYLNKeyjj2YFNRIuInPKbR2Y7mkZ-JsMfTbhXv56k0ClcIYYwb8XhvSEx0bkyHARRTVWVEyYA-o_kWjuGjx56kPXMkQet6TNalUnGCiw5WWjpPSsqP");'>
+</div>
+<span class="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full bg-primary ring-2 ring-white dark:ring-card-dark"></span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-text-main dark:text-white text-base font-medium truncate">Ana (Tú)</p>
+<p class="text-text-muted dark:text-gray-400 text-xs truncate">Administrador</p>
+</div>
+<div class="shrink-0 text-gray-300 dark:text-gray-600">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- Member 2 -->
+<div class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-12 w-12 border-2 border-white dark:border-gray-700 shadow-sm" data-alt="Portrait of a man with glasses smiling" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAXt1DTxvkI-vZX7HWFR4UDcd4CUb94KQ5WqdxCagYnFxt7ka0jNi5zBkaJ-Em9ZJLHIVzUrLRpAla1OVUiS326GtEnWIkBsVgIsoPXfNEy8fAFbi8rDXkXjwhbzrQc3jsujIc75qcTqggsGx9STceyBS-UETOxGxwdPKPWlGUi7teKM7HQPL44IB4Kb2Jq3mWoXJIDyk48Y7E2S6C-8GtTnY4ibw96NKdzM7Sc5VvZVkICOasPld5_Px24nSMOHkHBPwK4AGaiuw2Y");'>
+</div>
+<span class="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full bg-primary ring-2 ring-white dark:ring-card-dark"></span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-text-main dark:text-white text-base font-medium truncate">Carlos</p>
+<p class="text-text-muted dark:text-gray-400 text-xs truncate">Miembro</p>
+</div>
+<div class="shrink-0 text-gray-300 dark:text-gray-600">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- Member 3 -->
+<div class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-12 w-12 border-2 border-white dark:border-gray-700 shadow-sm" data-alt="Portrait of a teenage boy smiling" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAsWBvMPe2JoNhh7LRL_zzJwHR6Yp9wdClPX-DkmgvrirRaR1QsVk00yAyRv0CWbMqeG4mNECRI3V9Zure7jDQaAG-LoCHH89FMHNWdNLS2-Sei9L4RCCCpQUqXnAQ7ov1hXSNPGxTEwYwyUzGuSZzMtsByucRK3uKf8ry6aewRy2oWrkhO426w8Fl23c59UOO5NyP830-I1DkTyvVZ6LvynEnHxPUtnJ019FT9oIuYZU9FqgbYRX4SoJJDw643qVyUgppMhjU54jnq");'>
+</div>
+<!-- Offline/Idle status example (gray instead of green) if needed, but keeping green as requested for "online" -->
+<span class="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full bg-primary ring-2 ring-white dark:ring-card-dark"></span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-text-main dark:text-white text-base font-medium truncate">Mateo</p>
+<p class="text-text-muted dark:text-gray-400 text-xs truncate">Miembro</p>
+</div>
+<div class="shrink-0 text-gray-300 dark:text-gray-600">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- INVITAR Section -->
+<section>
+<h3 class="text-text-muted dark:text-gray-400 text-xs font-bold tracking-wider uppercase px-2 pb-2">Invitar</h3>
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 flex flex-col items-center text-center gap-5">
+<div class="bg-primary/10 p-3 rounded-full h-16 w-16 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl">group_add</span>
+</div>
+<div>
+<h4 class="text-text-main dark:text-white font-semibold text-lg">Haz crecer tu familia</h4>
+<p class="text-text-muted dark:text-gray-400 text-sm mt-1">Comparte el enlace para que otros puedan unirse y colaborar en la lista.</p>
+</div>
+<div class="w-full space-y-3">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">link</span>
+                            Copiar Enlace de Invitación
+                        </button>
+<button class="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/10 text-text-main dark:text-white font-medium py-3.5 px-4 rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">qr_code_2</span>
+                            Mostrar Código QR
+                        </button>
+</div>
+</div>
+</section>
+<!-- PREFERENCIAS Section -->
+<section>
+<h3 class="text-text-muted dark:text-gray-400 text-xs font-bold tracking-wider uppercase px-2 pb-2">Preferencias</h3>
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+<div class="flex items-center justify-between px-4 py-3.5">
+<div class="flex items-center gap-3">
+<div class="bg-gray-100 dark:bg-white/10 p-2 rounded-lg text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined text-[20px]">dark_mode</span>
+</div>
+<span class="text-text-main dark:text-white font-medium">Modo Oscuro</span>
+</div>
+<!-- Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-12 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-700"></div>
+<div class="flex items-center justify-between px-4 py-3.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5">
+<div class="flex items-center gap-3">
+<div class="bg-gray-100 dark:bg-white/10 p-2 rounded-lg text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</div>
+<span class="text-text-main dark:text-white font-medium">Notificaciones</span>
+</div>
+<span class="material-symbols-outlined text-gray-300 dark:text-gray-600 text-[20px]">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Danger Zone -->
+<section class="pt-4 pb-8">
+<button class="w-full text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium text-sm py-3 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+                    Salir de la familia
+                </button>
+<p class="text-center text-xs text-gray-400 mt-2">Versión 2.4.0</p>
+</section>
+</div>
+</div>
+</body></html>

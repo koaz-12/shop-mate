@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Autenticación - ShopMate</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#059467", // Emerald-600
+                        "primary-dark": "#047857",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#0f231d",
+                        "slate-900": "#0f172a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom styles for Material Symbols to ensure alignment */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased selection:bg-primary selection:text-white">
+<!-- Main Container -->
+<div class="relative flex min-h-screen w-full flex-col justify-between overflow-x-hidden group/design-root">
+<!-- Decorative subtle background gradients -->
+<div class="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
+<!-- Content Wrapper: Centered content with Safe Area considerations -->
+<div class="flex flex-1 flex-col items-center justify-center px-6 pt-12 pb-6 w-full max-w-md mx-auto z-10">
+<!-- Logo Section -->
+<div class="flex flex-col items-center gap-6 mb-10 w-full animate-fade-in-up">
+<!-- App Icon Container with Shadow -->
+<div class="relative flex items-center justify-center h-28 w-28 rounded-[2rem] bg-white shadow-soft dark:bg-[#1a2e28] transition-transform hover:scale-105 duration-300">
+<!-- Placeholder for App Logo -->
+<div class="bg-center bg-no-repeat bg-cover h-16 w-16" data-alt="ShopMate minimalist shopping basket logo gradient green" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD0kZFWnb3HWws0rq7UYiznWoHwWwiVm7OPu02svGVnCNd40YF1z8ywm8XAhidSA40fg3GhCnIJGAmPGDIz723ddMFOhQ2s3Y0kjyxANRomsq10p7SQJR55ZDFc_tfiqa2eo982Vc2gTqPMtQRxLbY-4BFxq-cIx5KkyHrrjCzStk7M0GMXlXrxGmd8mw3hyDg5x0bnaObvBmiL3ZoLzqRy3PFvg-C7qiLnzgTYW_mAI4W41PbxWnI_VpdEzdi36lze07sPsbfd7P8W"); mask-image: url("https://placeholder.pics/svg/300"); -webkit-mask-image: url("https://placeholder.pics/svg/300");'>
+<!-- Using a material icon directly as visual fallback/logo representation since we need to simulate the logo visually -->
+<span class="material-symbols-outlined text-primary text-6xl !text-[64px]">shopping_cart_checkout</span>
+</div>
+</div>
+<!-- Headings -->
+<div class="flex flex-col items-center justify-center gap-2">
+<h1 class="text-slate-900 dark:text-white text-3xl font-extrabold tracking-tight text-center">ShopMate</h1>
+<p class="text-[#5f8c7d] dark:text-[#8baea3] text-base font-medium text-center max-w-[260px] leading-relaxed">
+                        Colabora en tus compras familiares
+                    </p>
+</div>
+</div>
+<!-- Spacer -->
+<div class="h-4"></div>
+<!-- Actions Section -->
+<div class="w-full flex flex-col gap-5 items-center">
+<!-- Primary Action: Login with Google -->
+<!-- Modified SingleButton component: Using Theme Primary Color -->
+<button class="group flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 bg-primary hover:bg-primary-dark transition-colors duration-200 text-white shadow-md shadow-primary/20 ring-offset-2 focus:ring-2 ring-primary">
+<div class="flex items-center gap-3">
+<!-- Replaced data-icon with Material Symbol as requested, though usually Google uses its own SVG. Using a generic 'social' looking icon or similar. -->
+<span class="material-symbols-outlined text-white">captive_portal</span>
+<span class="text-lg font-bold tracking-wide">Iniciar con Google</span>
+</div>
+</button>
+<!-- Divider Component -->
+<div class="flex w-full items-center gap-4 px-2">
+<div class="h-px flex-1 bg-slate-200 dark:bg-slate-700"></div>
+<p class="text-[#5f8c7d] text-sm font-medium leading-normal whitespace-nowrap">o</p>
+<div class="h-px flex-1 bg-slate-200 dark:bg-slate-700"></div>
+</div>
+<!-- Secondary Action: Login with Email -->
+<!-- Modified SingleButton component: Minimalist styling -->
+<button class="group flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-6 bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-200 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">mail</span>
+<span class="text-sm font-bold tracking-wide">Iniciar con Email</span>
+</div>
+</button>
+</div>
+</div>
+<!-- Footer / MetaText -->
+<div class="pb-8 px-8 text-center z-10 w-full max-w-md mx-auto">
+<p class="text-[#5f8c7d] dark:text-[#5f8c7d] text-xs font-normal leading-5">
+                Al continuar, aceptas nuestros <br/>
+<a class="font-semibold hover:text-primary underline decoration-slate-300 dark:decoration-slate-600 underline-offset-2" href="#">Términos</a> y 
+                <a class="font-semibold hover:text-primary underline decoration-slate-300 dark:decoration-slate-600 underline-offset-2" href="#">Política de Privacidad</a>.
+            </p>
+</div>
+</div>
+</body></html>
