@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// Redeploy trigger: Force Vercel build refresh
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
