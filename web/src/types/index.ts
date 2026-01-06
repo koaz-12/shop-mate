@@ -46,8 +46,10 @@ export type Item = {
     in_pantry: boolean;
     quantity: string | null;
     price?: number | null;
+    price?: number | null;
     category: string;
     created_by: string | null;
+    bought_by?: string | null;
     household_id: string;
     list_id?: string | null;
     created_at: string;

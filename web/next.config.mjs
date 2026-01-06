@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 33: Deployment Trigger for Debounced Connection (Stability Polish)
+// Cache Bust 34: Feature - Bought By + Smart Consumption (The Salami Fix)
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
