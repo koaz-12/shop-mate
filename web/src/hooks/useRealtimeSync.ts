@@ -13,66 +13,79 @@ export function useRealtimeSync() {
     useEffect(() => {
         if (!householdId) return;
 
-        // 1. Force cleanup of any existing channel for this household to guarantee fresh listeners
-        const topic = `realtime:sync-${householdId}`;
-        const existingChannel = supabase.getChannels().find(c => c.topic === topic);
-        if (existingChannel) {
-            console.log('🧹 Cleaning stale channel before mount:', topic);
-            supabase.removeChannel(existingChannel);
-        }
+        let connectTimer: NodeJS.Timeout;
 
-        console.log('🔌 Initialize Realtime Connection:', householdId);
-        setConnectionStatus('connecting');
-        toast.loading('Sincronizando...', { id: 'realtime-sync', duration: 2000 });
+        const connect = async () => {
+            // 1. Force cleanup of any existing channel for this household to guarantee fresh listeners
+            const topic = `realtime:sync-${householdId}`;
+            const existingChannel = supabase.getChannels().find(c => c.topic === topic);
+            if (existingChannel) {
+                console.log('🧹 Cleaning stale channel before mount:', topic);
+                await supabase.removeChannel(existingChannel);
+            }
 
-        const channel = supabase
-            .channel(`sync-${householdId}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'items',
-                    // Removed filter string to rely on RLS and avoid syntax issues
-                },
-                (payload) => {
-                    console.log('📥 Realtime Payload:', payload);
-                    setConnectionStatus('connected');
+            console.log('🔌 Initialize Realtime Connection:', householdId);
+            setConnectionStatus('connecting');
 
-                    // Note: RLS ensures we only receive our items.
-                    // Redundant client-side check is unnecessary for security but harmless.
+            // Only show toast if triggered manually (refreshTrigger > 0 means it's not initial load)
+            // Actually refreshTrigger starts at 0. If user clicks, it becomes 1, 2...
+            // But checking connectionStatus might be better? No, refreshTrigger is explicit user intent.
+            if (refreshTrigger > 0) {
+                toast.loading('Sincronizando...', { id: 'realtime-sync', duration: 2000 });
+            }
 
-                    if (payload.eventType === 'INSERT') {
-                        addItem(payload.new as any);
-                    } else if (payload.eventType === 'UPDATE') {
-                        if (payload.new.deleted_at) {
-                            removeItem(payload.new.id);
-                        } else {
-                            updateItem(payload.new.id, payload.new as any);
+            const channel = supabase
+                .channel(`sync-${householdId}`)
+                .on(
+                    'postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'items',
+                    },
+                    (payload) => {
+                        console.log('📥 Realtime Payload:', payload);
+                        setConnectionStatus('connected');
+
+                        // Note: RLS ensures we only receive our items.
+                        if (payload.eventType === 'INSERT') {
+                            addItem(payload.new as any);
+                        } else if (payload.eventType === 'UPDATE') {
+                            if (payload.new.deleted_at) {
+                                removeItem(payload.new.id);
+                            } else {
+                                updateItem(payload.new.id, payload.new as any);
+                            }
+                        } else if (payload.eventType === 'DELETE') {
+                            removeItem(payload.old.id);
                         }
-                    } else if (payload.eventType === 'DELETE') {
-                        removeItem(payload.old.id);
                     }
-                }
-            )
-            .subscribe((status) => {
-                console.log(`📶 Connection Status (${householdId}):`, status);
+                )
+                .subscribe((status) => {
+                    console.log(`📶 Connection Status (${householdId}):`, status);
 
-                if (status === 'SUBSCRIBED') {
-                    setConnectionStatus('connected');
-                } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-                    console.error('❌ Connection Error:', status);
-                    setConnectionStatus('disconnected');
-                } else if (status === 'CLOSED') {
-                    setConnectionStatus('disconnected');
-                }
-            });
+                    if (status === 'SUBSCRIBED') {
+                        setConnectionStatus('connected');
+                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                        console.error('❌ Connection Error:', status);
+                        setConnectionStatus('disconnected');
+                    } else if (status === 'CLOSED') {
+                        setConnectionStatus('disconnected');
+                    }
+                });
 
-        channelRef.current = channel;
+            channelRef.current = channel;
+        };
+
+        // Debounce connection to prevent race conditions in Strict Mode
+        connectTimer = setTimeout(() => {
+            connect();
+        }, 500);
 
         return () => {
-            console.log('🔌 Cleaning up channel...');
+            clearTimeout(connectTimer); // Cancel pending connection
             if (channelRef.current) {
+                console.log('🔌 Cleaning up channel...');
                 supabase.removeChannel(channelRef.current);
                 channelRef.current = null;
             }

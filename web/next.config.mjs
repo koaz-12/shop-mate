@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 32: Production Release (Sync & RLS Fixed)
+// Cache Bust 33: Deployment Trigger for Debounced Connection (Stability Polish)
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
