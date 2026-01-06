@@ -26,6 +26,7 @@ export default function PantryItemSheet({ item, isOpen, onClose, onConsume, onRe
     const [price, setPrice] = useState(item.price?.toString() || '');
     const [category, setCategory] = useState(item.category || 'Otros');
     const [localQuantity, setLocalQuantity] = useState(parseInt(item.quantity || "1") || 1);
+    const [restockQty, setRestockQty] = useState(1);
 
     const creator = members.find(m => m.id === item.created_by);
     const buyer = members.find(m => m.id === item.bought_by);
@@ -123,14 +124,31 @@ export default function PantryItemSheet({ item, isOpen, onClose, onConsume, onRe
                                 </Button>
                             </div>
 
-                            <Button
-                                onClick={() => onSplit(1)}
-                                variant="outline"
-                                className="w-full h-12 text-slate-600 border-dashed border-2 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 font-medium"
-                            >
-                                <Plus size={18} className="mr-2" />
-                                Agregar 1 a Lista de Compra
-                            </Button>
+                            <div className="flex items-center gap-3 pt-2">
+                                <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-xl border border-dashed border-slate-300 h-12">
+                                    <button
+                                        onClick={() => setRestockQty(Math.max(1, restockQty - 1))}
+                                        className="h-8 w-10 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 font-bold"
+                                    >
+                                        <Minus size={14} />
+                                    </button>
+                                    <span className="text-base font-bold w-6 text-center text-slate-600">{restockQty}</span>
+                                    <button
+                                        onClick={() => setRestockQty(restockQty + 1)}
+                                        className="h-8 w-10 flex items-center justify-center rounded-lg hover:bg-slate-100 text-emerald-600 font-bold"
+                                    >
+                                        <Plus size={14} />
+                                    </button>
+                                </div>
+                                <Button
+                                    onClick={() => onSplit(restockQty)}
+                                    variant="outline"
+                                    className="flex-1 h-12 text-slate-600 border-dashed border-2 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 font-medium"
+                                >
+                                    <Plus size={18} className="mr-2" />
+                                    Agregar a Compra
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Expand Edit Button */}
