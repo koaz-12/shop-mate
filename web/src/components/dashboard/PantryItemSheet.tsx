@@ -104,9 +104,10 @@ export default function PantryItemSheet({ item, isOpen, onClose, onConsume, onRe
                                 <Button
                                     onClick={() => {
                                         onConsume(1);
-                                        // Update local quantity visually immediately? 
-                                        // Parent will re-render, but for snappiness we could
+                                        // Update local quantity visually immediately
                                         setLocalQuantity(Math.max(0, localQuantity - 1));
+                                        // Smart: Suggest restocking what was just consumed
+                                        setRestockQty(prev => prev + 1);
                                     }}
                                     variant="secondary"
                                     className="h-14 bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200"

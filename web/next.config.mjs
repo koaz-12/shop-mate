@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 38: UI Polish - Restock Quantity Selector
+// Cache Bust 39: UI Polish - Smart Restock Suggestion
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
