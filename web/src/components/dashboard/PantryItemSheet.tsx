@@ -122,6 +122,15 @@ export default function PantryItemSheet({ item, isOpen, onClose, onConsume, onRe
                                     Reponer Todo
                                 </Button>
                             </div>
+
+                            <Button
+                                onClick={() => onSplit(1)}
+                                variant="outline"
+                                className="w-full h-12 text-slate-600 border-dashed border-2 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 font-medium"
+                            >
+                                <Plus size={18} className="mr-2" />
+                                Agregar 1 a Lista de Compra
+                            </Button>
                         </div>
 
                         {/* Expand Edit Button */}
