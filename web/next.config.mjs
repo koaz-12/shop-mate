@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 34: Feature - Bought By + Smart Consumption (The Salami Fix)
+// Cache Bust 35: Feature - Unified Pantry Action Sheet (Premium UX)
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
