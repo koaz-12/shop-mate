@@ -14,7 +14,7 @@ import PantryItemSheet from './PantryItemSheet';
 
 export default function ShoppingList() {
     const { items, household, currentList, activeView, setActiveView } = useStore();
-    const { toggleItem, updateItemDetails, softDeleteItem } = useItems();
+    const { toggleItem, updateItemDetails, softDeleteItem, duplicateItem } = useItems(); // Added duplicateItem
     const router = useRouter();
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -275,7 +275,11 @@ export default function ShoppingList() {
                         }
                     }}
                     onRestock={() => {
-                        toggleItem(selectedPantryItem.id, true);
+                        toggleItem(selectedPantryItem.id, true, true);
+                        setSelectedPantryItem(null);
+                    }}
+                    onSplit={(amount) => {
+                        duplicateItem(selectedPantryItem, amount.toString());
                         setSelectedPantryItem(null);
                     }}
                     onUpdate={(updates) => {

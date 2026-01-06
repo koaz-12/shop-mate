@@ -39,24 +39,17 @@ export function useItems() {
         }
     }, [addItem, queueAction, supabase]);
 
-    const toggleItem = useCallback(async (itemId: string, currentStatus: boolean) => {
+    const toggleItem = useCallback(async (itemId: string, currentStatus: boolean, forceMove: boolean = false) => {
         const movingToPantry = !currentStatus;
 
         // Smart Consumption: If in Pantry (currentStatus=true) and has quantity > 1
-        if (!movingToPantry) {
+        // override with forceMove
+        if (!movingToPantry && !forceMove) {
             const currentItem = items.find(i => i.id === itemId);
             if (currentItem?.quantity) {
                 const qty = parseInt(currentItem.quantity);
                 if (!isNaN(qty) && qty > 1) {
                     // Decrement logic via updateItemDetails
-                    // We need to define updateItemDetails before toggleItem or hoist it? 
-                    // They are in the same hook. Typescript handles hoisting for functions but these are consts.
-                    // I will inline the update logic here to avoid dependency cycle or definition order issues,
-                    // OR rely on updateItemDetails being available if I move this definition after it?
-                    // They are callbacks. JS handles circular refs in callbacks fine as long as they exist when called.
-                    // But `updateItemDetails` is defined AFTER `toggleItem` in the file.
-                    // I should call `updateItem` (store) and `supabase` directly here for simplicity.
-
                     const newQty = (qty - 1).toString();
                     updateItem(itemId, { quantity: newQty });
                     toast.success(`1 consumido. Quedan ${newQty}`);
@@ -109,6 +102,21 @@ export function useItems() {
         }
     }, [updateItem, supabase, queueAction, user, items]); // Added items dependency
 
+    const duplicateItem = useCallback(async (originalItem: Item, quantity: string = "1") => {
+        await addNewItem({
+            name: originalItem.name,
+            category: originalItem.category,
+            price: originalItem.price,
+            household_id: originalItem.household_id,
+            list_id: originalItem.list_id,
+            in_pantry: false,
+            is_completed: false,
+            quantity: quantity,
+            created_by: user?.id
+        });
+        toast.success(`Agregado a la lista: ${originalItem.name} (${quantity})`);
+    }, [addNewItem, user]);
+
     const updateItemDetails = useCallback(async (itemId: string, updates: Partial<Item>) => {
         // Optimistic
         updateItem(itemId, updates);
@@ -156,6 +164,7 @@ export function useItems() {
         addNewItem,
         toggleItem,
         updateItemDetails,
-        softDeleteItem
+        softDeleteItem,
+        duplicateItem
     };
 }

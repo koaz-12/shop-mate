@@ -14,9 +14,10 @@ interface PantryItemSheetProps {
     onConsume: (amount: number) => void;
     onRestock: () => void;
     onUpdate: (updates: Partial<Item>) => void;
+    onSplit: (amount: number) => void;
 }
 
-export default function PantryItemSheet({ item, isOpen, onClose, onConsume, onRestock, onUpdate }: PantryItemSheetProps) {
+export default function PantryItemSheet({ item, isOpen, onClose, onConsume, onRestock, onUpdate, onSplit }: PantryItemSheetProps) {
     const { members, categories } = useStore();
     const [editMode, setEditMode] = useState(false);
 

@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 36: UI Polish - Preemptive Add Item Status
+// Cache Bust 37: Fix Restock All & Add Partial Restock
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
