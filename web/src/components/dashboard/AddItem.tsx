@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
-import { Plus, Sparkles, Mic, MicOff, ScanBarcode } from 'lucide-react';
+import { Plus, Sparkles, Mic, MicOff, ScanBarcode, Package, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import useVoiceInput from '@/hooks/useVoiceInput';
@@ -22,6 +22,8 @@ export default function AddItem() {
     const { household, user, activeView, items, categories, catalog, currentList } = useStore();
     const { addNewItem } = useItems(); // Use the hook
     const { isListening, transcript, startListening, isSupported, setTranscript } = useVoiceInput();
+
+    const existingItem = items.find(i => i.name.toLowerCase() === name.trim().toLowerCase());
 
     // Voice Effect
     useEffect(() => {
@@ -246,10 +248,19 @@ export default function AddItem() {
                     <Button
                         type="submit"
                         size="icon"
-                        className={`h-14 w-14 rounded-full shadow-lg shrink-0 transition-colors ${activeView === 'pantry' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+                        className={cn(
+                            "h-14 w-14 rounded-full shadow-lg shrink-0 transition-all",
+                            existingItem
+                                ? (existingItem.in_pantry ? 'bg-blue-500 hover:bg-blue-600' : 'bg-orange-500 hover:bg-orange-600')
+                                : (activeView === 'pantry' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-emerald-600 hover:bg-emerald-700')
+                        )}
                         disabled={!name.trim()}
                     >
-                        <Plus size={24} />
+                        {existingItem ? (
+                            existingItem.in_pantry ? <Package size={24} /> : <Check size={24} />
+                        ) : (
+                            <Plus size={24} />
+                        )}
                     </Button>
                 </div>
             </form>

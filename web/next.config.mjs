@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Cache Bust 35: Feature - Unified Pantry Action Sheet (Premium UX)
+// Cache Bust 36: UI Polish - Preemptive Add Item Status
 const nextConfig = {
     reactStrictMode: true,
     typescript: {
