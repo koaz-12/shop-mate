@@ -23,16 +23,16 @@ export function useOfflineSync() {
                 let error = null;
 
                 if (action.type === 'ADD_ITEM') {
-                    const { error: e } = await supabase.from('items' as any).insert(action.payload);
+                    const { error: e } = await (supabase.from('items') as any).insert(action.payload);
                     error = e;
                 } else if (action.type === 'UPDATE_ITEM') {
-                    const { error: e } = await supabase.from('items' as any).update(action.payload.updates).eq('id', action.payload.itemId);
+                    const { error: e } = await (supabase.from('items') as any).update(action.payload.updates).eq('id', action.payload.itemId);
                     error = e;
                 } else if (action.type === 'TOGGLE_ITEM') {
-                    const { error: e } = await supabase.from('items' as any).update({ in_pantry: action.payload.status }).eq('id', action.payload.itemId);
+                    const { error: e } = await (supabase.from('items') as any).update({ in_pantry: action.payload.status }).eq('id', action.payload.itemId);
                     error = e;
                 } else if (action.type === 'DELETE_ITEM') {
-                    const { error: e } = await supabase.from('items' as any).update({ deleted_at: new Date().toISOString() }).eq('id', action.payload.itemId);
+                    const { error: e } = await (supabase.from('items') as any).update({ deleted_at: new Date().toISOString() }).eq('id', action.payload.itemId);
                     error = e;
                 }
 

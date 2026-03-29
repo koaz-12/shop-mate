@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import Barcode from 'react-barcode';
 import { createClient } from '@/lib/supabase';
+import toast from 'react-hot-toast';
 
 export default function LoyaltyPage() {
     const { loyaltyCards, addLoyaltyCard, removeLoyaltyCard, household, user } = useStore();
@@ -60,14 +61,14 @@ export default function LoyaltyPage() {
 
         if (error) {
             console.error(error);
-            alert('Error al guardar tarjeta');
+            toast.error('Error al guardar tarjeta');
             removeLoyaltyCard(newCard.id);
         }
     };
 
     const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!confirm('¿Borrar tarjeta?')) return;
+        if (!window.confirm('¿Borrar tarjeta?')) return;
 
         removeLoyaltyCard(id); // Optimistic
         const { error } = await supabase.from('loyalty_cards' as any).delete().eq('id', id);

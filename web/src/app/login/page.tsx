@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Mail, Loader2, ShoppingCart } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -42,7 +43,7 @@ export default function LoginPage() {
                     password,
                 });
                 if (error) throw error;
-                alert('Account created! You can now sign in.');
+                toast.success('Account created! You can now sign in.');
                 setIsSignUp(false);
             } else {
                 const { error } = await supabase.auth.signInWithPassword({
@@ -54,7 +55,7 @@ export default function LoginPage() {
                 router.push('/dashboard');
             }
         } catch (error: any) {
-            alert(error.message);
+            toast.error(error.message);
         } finally {
             setLoading(false);
         }

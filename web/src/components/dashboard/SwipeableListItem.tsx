@@ -309,18 +309,29 @@ export default function SwipeableListItem({
                             ))}
                         </div>
 
-                        {/* Creator Avatar - Enhanced */}
-                        {creator && !isSelectionMode && (
-                            <div className="ml-2 h-6 w-6 rounded-full bg-indigo-100 ring-2 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0" title={`Añadido por ${creator.full_name || 'Alguien'}`}>
-                                {creator.avatar_url ? (
-                                    <img src={creator.avatar_url} alt="Creator" className="h-full w-full object-cover" />
-                                ) : (
-                                    <span className="text-[10px] font-extrabold text-indigo-600 select-none">
-                                        {creator.full_name?.[0]?.toUpperCase() || '?'}
-                                    </span>
-                                )}
-                            </div>
-                        )}
+                        {/* User Avatar - Context Aware */}
+                        {(() => {
+                            const creator = members?.find(m => m.id === item.created_by);
+                            const buyer = members?.find(m => m.id === item.bought_by);
+                            const displayUser = activeView === 'pantry' ? (buyer || creator) : creator;
+                            const tooltip = activeView === 'pantry'
+                                ? `Comprado por ${displayUser?.full_name || 'Desconocido'}`
+                                : `Pedido por ${displayUser?.full_name || 'Desconocido'}`;
+
+                            if (!displayUser || isSelectionMode) return null;
+
+                            return (
+                                <div className="ml-2 h-6 w-6 rounded-full bg-indigo-100 ring-2 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0" title={tooltip}>
+                                    {displayUser.avatar_url ? (
+                                        <img src={displayUser.avatar_url} alt="User" className="h-full w-full object-cover" />
+                                    ) : (
+                                        <span className="text-[10px] font-extrabold text-indigo-600 select-none">
+                                            {displayUser.full_name?.[0]?.toUpperCase() || '?'}
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })()}
                     </div>
 
                     {!isSelectionMode && (

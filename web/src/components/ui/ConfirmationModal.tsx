@@ -50,7 +50,7 @@ export default function ConfirmationModal({
                             {cancelText}
                         </Button>
                         <Button
-                            variant={variant === 'danger' ? 'danger' : 'primary'}
+                            variant={variant === 'danger' ? 'destructive' : 'default'}
                             onClick={onConfirm}
                             className="w-full"
                         >

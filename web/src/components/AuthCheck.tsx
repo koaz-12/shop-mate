@@ -12,122 +12,101 @@ export default function AuthCheck({ children }: { children: React.ReactNode }) {
     useOfflineSync();
     const router = useRouter();
     const pathname = usePathname();
+    // Re-create the client outside useEffect is fine since it's a singleton,
+    // but typically safe to just define inside to avoid linter warnings
     const supabase = createClient();
 
-    // Individual selectors to avoid "getServerSnapshot" infinite loop with object literals
+    // Zustand actions
     const setUser = useStore((state) => state.setUser);
     const setProfile = useStore((state) => state.setProfile);
     const setHousehold = useStore((state) => state.setHousehold);
     const setMembers = useStore((state) => state.setMembers);
-    const setItems = useStore((state) => state.setItems);
     const setCategories = useStore((state) => state.setCategories);
     const setCatalog = useStore((state) => state.setCatalog);
+    const setLoyaltyCards = useStore((state) => state.setLoyaltyCards);
     const setLists = useStore((state) => state.setLists);
     const setCurrentList = useStore((state) => state.setCurrentList);
-    const setLoyaltyCards = useStore((state) => state.setLoyaltyCards);
-    const household = useStore((state) => state.household);
-    const user = useStore((state) => state.user);
 
     const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
         const checkAuth = async () => {
             try {
+                // 1. Fetch Session
                 const { data: { session } } = await supabase.auth.getSession();
 
                 if (!session) {
                     if (pathname !== '/login' && pathname !== '/') {
                         router.push('/login');
                     }
-                } else {
-                    setUser(session.user);
+                    return;
+                }
 
-                    // Fetch profile
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('*')
-                        .eq('id', session.user.id)
-                        .single();
+                setUser(session.user);
 
-                    if (profile) setProfile(profile);
+                // 2. Fetch Profile & Active Household Membership in Parallel
+                const [profileRes, memberRes] = (await Promise.all([
+                    supabase.from('profiles').select('*').eq('id', session.user.id).single(),
+                    supabase.from('household_members').select('household_id, role, households(*)').eq('user_id', session.user.id).single(),
+                ])) as unknown as [any, any];
 
-                    // Check household
-                    const { data: members } = await supabase
-                        .from('household_members')
-                        .select('household_id, role, households(*)')
-                        .eq('user_id', session.user.id)
-                        .single();
+                if (profileRes.data) setProfile(profileRes.data);
 
-                    if (members && (members as any).households) {
-                        // @ts-ignore
-                        const activeHousehold = (members as any).households;
-                        setHousehold(activeHousehold);
+                if (memberRes.data && (memberRes.data as any).households) {
+                    const activeHousehold = (memberRes.data as any).households;
+                    setHousehold(activeHousehold);
 
-                        // Fetch detailed profile for all members of this household
-                        const { data: householdProfiles } = await supabase
-                            .from('household_members')
-                            .select('profiles(*)')
-                            .eq('household_id', activeHousehold.id);
+                    // 3. Fetch all household-dependent data in Parallel
+                    const [
+                        membersRes,
+                        categoriesRes,
+                        catalogRes,
+                        cardsRes,
+                        listsRes
+                    ] = (await Promise.all([
+                        supabase.from('household_members').select('profiles(*)').eq('household_id', activeHousehold.id),
+                        supabase.from('categories').select('*').or(`is_system.eq.true,household_id.eq.${activeHousehold.id}`).order('name'),
+                        supabase.from('household_products').select('*').eq('household_id', activeHousehold.id),
+                        supabase.from('loyalty_cards').select('*').eq('household_id', activeHousehold.id),
+                        supabase.from('lists').select('*').eq('household_id', activeHousehold.id).order('created_at'),
+                    ])) as unknown as [any, any, any, any, any];
 
-                        if (householdProfiles) {
-                            // Extract profiles from the join result
-                            // @ts-ignore
-                            const cleanProfiles = householdProfiles.map(p => p.profiles).filter(Boolean);
-                            setMembers(cleanProfiles);
-                        }
+                    // Assign Members
+                    if (membersRes.data) {
+                        const cleanProfiles = membersRes.data.map((p: any) => p.profiles).filter(Boolean);
+                        setMembers(cleanProfiles as any[]);
+                    }
 
-                        // Fetch Categories (System + Household)
-                        const { data: categories } = await supabase
-                            .from('categories')
-                            .select('*')
-                            .order('name');
+                    // Assign Categories
+                    if (categoriesRes.data) setCategories(categoriesRes.data);
 
-                        if (categories) {
-                            setCategories(categories);
+                    // Assign Catalog
+                    if (catalogRes.data) setCatalog(catalogRes.data);
 
-                            // Fetch Catalog (Price History)
-                            const { data: catalog } = await supabase
-                                .from('household_products')
-                                .select('*')
-                                // @ts-ignore
-                                .eq('household_id', activeHousehold.id);
+                    // Assign Loyalty Cards
+                    if (cardsRes.data) setLoyaltyCards(cardsRes.data);
 
-                            if (catalog) setCatalog(catalog);
-
-                            // Fetch Loyalty Cards
-                            const { data: cards } = await supabase
-                                .from('loyalty_cards')
-                                .select('*')
-                                // @ts-ignore
-                                .eq('household_id', activeHousehold.id);
-
-                            if (cards) setLoyaltyCards(cards);
-
-                            // Fetch Lists
-                            const { data: lists } = await supabase
-                                .from('lists')
-                                .select('*')
-                                .order('created_at');
-
-                            if (lists && lists.length > 0) {
-                                setLists(lists);
-                                // Set initial list if none selected
-                                const current = useStore.getState().currentList;
-                                if (!current) {
-                                    setCurrentList(lists[0]);
-                                }
-                            }
-                        }
-
-                        if (pathname === '/login' || pathname === '/onboarding' || pathname === '/') {
-                            router.push('/home');
+                    // Assign Lists
+                    if (listsRes.data && listsRes.data.length > 0) {
+                        setLists(listsRes.data);
+                        const current = useStore.getState().currentList;
+                        if (!current) {
+                            setCurrentList(listsRes.data[0]);
                         }
                     } else {
-                        if (pathname !== '/onboarding' && pathname !== '/login') {
-                            router.push('/onboarding');
-                        }
+                        setLists([]);
+                    }
+
+                    if (pathname === '/login' || pathname === '/onboarding' || pathname === '/') {
+                        router.push('/home');
+                    }
+                } else {
+                    if (pathname !== '/onboarding' && pathname !== '/login') {
+                        router.push('/onboarding');
                     }
                 }
+            } catch (error) {
+                console.error("Error checking auth:", error);
             } finally {
                 setIsChecking(false);
             }
@@ -136,28 +115,20 @@ export default function AuthCheck({ children }: { children: React.ReactNode }) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_OUT') {
                 setUser(null);
+                useStore.getState().reset();
                 router.push('/login');
-            } else if (session) {
-                // If session changes (e.g. sign in), re-check logic 
-                // but usually we rely on the initial check or specific redirects.
-                // We'll keep it simple.
             }
         });
-
 
         const presenceChannel = supabase.channel('online-users');
 
         presenceChannel
             .on('presence', { event: 'sync' }, () => {
                 const state = presenceChannel.presenceState();
-                // We will store this in a new global store slice later, 
-                // or just broadcast it. For now let's just log it or set it if we had a store.
-                // ideally useStore.getState().setOnlineUsers(state);
                 console.log('Online users:', state);
             })
             .subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') {
-                    // Track self
                     const { data: { user } } = await supabase.auth.getUser();
                     if (user) {
                         await presenceChannel.track({
@@ -174,12 +145,15 @@ export default function AuthCheck({ children }: { children: React.ReactNode }) {
             subscription.unsubscribe();
             presenceChannel.unsubscribe();
         };
-    }, [supabase, router, pathname, setUser, setProfile, setHousehold]);
+    }, [supabase, router, pathname, setUser, setProfile, setHousehold, setMembers, setCategories, setCatalog, setLoyaltyCards, setLists, setCurrentList]);
 
     if (isChecking) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-50">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+            <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 gap-4 animate-in fade-in duration-300">
+                <div className="h-16 w-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-3xl animate-pulse shadow-xl shadow-emerald-200/50 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full border-4 border-white/30 border-t-white animate-spin" />
+                </div>
+                <p className="text-slate-400 font-medium text-sm animate-pulse">Sincronizando familia...</p>
             </div>
         );
     }

@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { useItems } from '@/hooks/useItems';
 import { Button } from '@/components/ui/Button';
-import { Plus, RotateCcw, BarChart2, Trash2, X, Check } from 'lucide-react';
+import { Plus, RotateCcw, BarChart2, Trash2, X, Check, Package, ShoppingCart } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import Header from '@/components/dashboard/Header';
 import RecurrenceModal from '@/components/dashboard/RecurrenceModal';
@@ -35,7 +35,7 @@ export default function HistoryPage() {
 
     const supabase = createClient();
     const { household, user, items: activeItems, addItem, currentList } = useStore(); // Get active items
-    const { softDeleteItem, addNewItem } = useItems();
+    const { softDeleteItem, addNewItem, toggleItem, duplicateItem } = useItems();
 
     useEffect(() => {
         if (!household) return;
@@ -113,34 +113,44 @@ export default function HistoryPage() {
             description: `"${name}" se borrará permanentemente de tu historial y sugerencias.`,
             variant: 'danger',
             onConfirm: async () => {
+                if (!household) return;
                 setHistoryItems(prev => prev.filter(i => i.name !== name));
-                await supabase
-                    .from('items' as any)
+                await (supabase as any)
+                    .from('items')
                     .update({ deleted_at: new Date().toISOString() })
                     .eq('household_id', household.id)
                     .eq('name', name);
+
                 setConfirmModal(prev => ({ ...prev, isOpen: false }));
             }
         });
     };
 
     const handleToggleList = (item: HistoryItem) => {
-        const active = activeItems.find(i => i.name.toLowerCase() === item.name.toLowerCase() && !i.in_pantry);
+        // Find ALL matches to handle hybrid state (in pantry AND in list)
+        const matches = activeItems.filter(i => i.name.toLowerCase() === item.name.toLowerCase());
+        const inPantry = matches.some(i => i.in_pantry);
+        const inList = matches.some(i => !i.in_pantry);
+        const itemInList = matches.find(i => !i.in_pantry); // Specific item ref for deletion
 
-        if (active) {
-            // Remove
+        if (inList && itemInList) {
+            // Case 1: Already in List (Priority Action) -> Confirm Remove
+            // This applies even if it is ALSO in pantry. Logic: You are "unchecking" the buy intent.
             setConfirmModal({
                 isOpen: true,
                 title: '¿Quitar de la lista?',
-                description: `"${item.name}" saldrá de tu lista de compras actual.`,
+                description: `"${item.name}" saldrá de tu lista de compras actual.${inPantry ? ' (Se mantendrá en despensa)' : ''}`,
                 variant: 'warning',
                 onConfirm: async () => {
-                    await softDeleteItem(active.id);
+                    await softDeleteItem(itemInList.id);
                     setConfirmModal(prev => ({ ...prev, isOpen: false }));
                 }
             });
+        } else if (inPantry) {
+            // Case 2: Only in Pantry -> Do NOTHING (User requested to remove restock button from history)
+            // toast("Item en despensa"); 
         } else {
-            // Add (No confirm needed)
+            // Case 3: New -> Add to List
             addToShoppingList(item);
         }
     };
@@ -175,11 +185,13 @@ export default function HistoryPage() {
         groupedItems[cat].push(item);
     });
 
-    // Helper to check status
+    // Helper to check status (Hybrid)
     const getItemStatus = (name: string) => {
-        const active = activeItems.find(i => i.name.toLowerCase() === name.toLowerCase());
-        if (!active) return null;
-        return active.in_pantry ? 'pantry' : 'shopping';
+        const matches = activeItems.filter(i => i.name.toLowerCase() === name.toLowerCase());
+        return {
+            inPantry: matches.some(i => i.in_pantry),
+            inList: matches.some(i => !i.in_pantry)
+        };
     };
 
     return (
@@ -225,8 +237,7 @@ export default function HistoryPage() {
                             </h3>
                             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-50">
                                 {groupedItems[category].map((item, idx) => {
-                                    const status = getItemStatus(item.name);
-                                    const isOnList = status === 'shopping';
+                                    const { inPantry, inList } = getItemStatus(item.name);
 
                                     return (
                                         <div key={idx} className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
@@ -236,13 +247,20 @@ export default function HistoryPage() {
                                             </div>
 
                                             <div className="flex items-center gap-2">
-                                                {status === 'pantry' && (
-                                                    <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold border border-blue-100 flex items-center gap-1">
+                                                {inPantry && (
+                                                    <span className="px-3 py-1.5 rounded-xl bg-blue-100/50 text-blue-700 text-xs font-bold border border-blue-200 flex items-center gap-1.5">
+                                                        <Package size={14} className="text-blue-600" />
                                                         En Despensa
                                                     </span>
                                                 )}
+                                                {inList && (
+                                                    <span className="px-3 py-1.5 rounded-xl bg-emerald-100/50 text-emerald-700 text-xs font-bold border border-emerald-200 flex items-center gap-1.5">
+                                                        <ShoppingCart size={14} className="text-emerald-600" />
+                                                        En Lista
+                                                    </span>
+                                                )}
 
-                                                {!status && (
+                                                {!inPantry && !inList && (
                                                     <button
                                                         onClick={() => handleDeleteFromHistory(item.name)}
                                                         className="h-8 w-8 flex items-center justify-center rounded-full text-slate-300 hover:bg-red-50 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
@@ -261,16 +279,18 @@ export default function HistoryPage() {
                                                     <Clock size={16} />
                                                 </button>
 
-                                                <button
-                                                    onClick={() => handleToggleList(item)}
-                                                    title={isOnList ? "Quitar de lista" : "Agregar a lista"}
-                                                    className={`h-8 w-8 flex items-center justify-center rounded-full transition-all shadow-sm ${isOnList
-                                                        ? 'bg-emerald-100 text-emerald-600'
-                                                        : 'bg-slate-100 text-slate-600 hover:bg-emerald-500 hover:text-white'
-                                                        }`}
-                                                >
-                                                    {isOnList ? <Check size={16} /> : <Plus size={16} />}
-                                                </button>
+                                                {!inPantry && (
+                                                    <button
+                                                        onClick={() => handleToggleList(item)}
+                                                        title={inList ? "Quitar de lista" : "Agregar a lista"}
+                                                        className={`h-8 w-8 flex items-center justify-center rounded-full transition-all shadow-sm ${inList
+                                                            ? 'bg-emerald-100 text-emerald-600'
+                                                            : 'bg-slate-100 text-slate-600 hover:bg-emerald-500 hover:text-white'
+                                                            }`}
+                                                    >
+                                                        {inList ? <Check size={18} strokeWidth={3} /> : <Plus size={18} />}
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     );

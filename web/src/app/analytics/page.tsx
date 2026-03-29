@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, PieChart, TrendingUp, DollarSign } from 'lucide-react';
+import { ArrowLeft, PieChart, TrendingUp, DollarSign, AlertOctagon } from 'lucide-react';
 import { HouseholdProduct } from '@/types';
 
 export default function AnalyticsPage() {
@@ -56,6 +56,12 @@ export default function AnalyticsPage() {
     const topProducts = [...products]
         .sort((a, b) => b.times_bought - a.times_bought)
         .slice(0, 5);
+
+    // Top Spenders (Financial Black Holes)
+    const topSpenders = [...products]
+        .sort((a, b) => ((b.last_price || 0) * (b.times_bought || 0)) - ((a.last_price || 0) * (a.times_bought || 0)))
+        .slice(0, 5)
+        .filter(p => ((p.last_price || 0) * (p.times_bought || 0)) > 0);
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
@@ -148,6 +154,37 @@ export default function AnalyticsPage() {
                         )}
                     </div>
                 </div>
+                {/* Top Spenders (Financial Black Holes) */}
+                {topSpenders.length > 0 && (
+                    <div>
+                        <h3 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2">
+                            <AlertOctagon size={20} className="text-amber-500" />
+                            Mayor Impacto Financiero
+                        </h3>
+                        <div className="bg-white rounded-3xl p-2 shadow-sm border border-slate-100">
+                            {topSpenders.map((p, i) => {
+                                const prodSpend = (p.last_price || 0) * (p.times_bought || 0);
+                                const percentageOfTotal = totalSpent > 0 ? (prodSpend / totalSpent) * 100 : 0;
+                                return (
+                                <div key={`spend-${p.id}`} className="flex items-center justify-between p-4 border-b border-slate-50 last:border-0">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-8 w-8 flex items-center justify-center bg-rose-50 rounded-full font-bold text-rose-600 text-xs shadow-sm">
+                                            #{i + 1}
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-800 truncate">{p.name}</p>
+                                            <p className="text-xs text-slate-400 capitalize">{p.category_name} • ${p.last_price} c/u</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right whitespace-nowrap">
+                                        <span className="block font-bold text-slate-900">${prodSpend.toLocaleString()}</span>
+                                        <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase font-bold">{percentageOfTotal.toFixed(1)}% del Gasto</span>
+                                    </div>
+                                </div>
+                            )})}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Users, UserPlus, ArrowRight, Loader2 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import toast from 'react-hot-toast';
 
 export default function OnboardingPage() {
     const [mode, setMode] = useState<'create' | 'join' | null>(null);
@@ -38,9 +39,10 @@ export default function OnboardingPage() {
 
             const { data: household, error: hhError } = await supabase
                 .from('households' as any)
-                .insert({ name: familyName, invite_code: code })
+                .insert({ name: familyName, invite_code: code } as never)
                 .select()
                 .single();
+            const createdHousehold = household as any;
 
             if (hhError) throw hhError;
 
@@ -48,16 +50,16 @@ export default function OnboardingPage() {
                 .from('household_members' as any)
                 .insert({
                     user_id: user.id,
-                    household_id: household.id,
+                    household_id: createdHousehold.id,
                     role: 'admin'
-                });
+                } as never);
 
             if (memberError) throw memberError;
 
-            setHousehold(household);
+            setHousehold(createdHousehold);
             router.push('/dashboard');
         } catch (error: any) {
-            alert(error.message);
+            toast.error(error.message);
         } finally {
             setLoading(false);
         }
@@ -72,7 +74,7 @@ export default function OnboardingPage() {
             // Call Secure RPC
             const { data, error } = await supabase.rpc('join_household', {
                 invite_code_input: inviteCode.trim()
-            });
+            } as never);
 
             if (error) throw error;
 
@@ -93,12 +95,12 @@ export default function OnboardingPage() {
                 router.push('/dashboard');
             } else {
                 // @ts-ignore
-                alert(data?.message || 'Error al unirse a la familia');
+                toast.error(data?.message || 'Error al unirse a la familia');
             }
 
         } catch (error: any) {
             console.error(error);
-            alert(error.message || 'Error de conexión');
+            toast.error(error.message || 'Error de conexión');
         } finally {
             setLoading(false);
         }

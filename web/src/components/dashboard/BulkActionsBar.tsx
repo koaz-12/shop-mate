@@ -52,7 +52,7 @@ export default function BulkActionsBar({
                     {/* Delete Action */}
                     <Button
                         onClick={onDelete}
-                        variant="danger"
+                        variant="destructive"
                         size="sm"
                         className="h-10 w-10 p-0 rounded-xl"
                     >

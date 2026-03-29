@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Coffee, RefreshCcw, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Check, Coffee, Package, ShoppingBag, Plus, RefreshCcw } from 'lucide-react';
 import { cn } from '@/lib/utils'; // Assuming cn exists, else standard string concat
 
 export default function ShoppingModePage() {
@@ -24,7 +24,7 @@ export default function ShoppingModePage() {
     // I will sort by `updated_at` desc so the most recently checked is at top.
     const doneList = items
         .filter(i => i.in_pantry && !i.deleted_at)
-        .sort((a, b) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
+        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
     useEffect(() => {
         const requestWakeLock = async () => {
@@ -49,7 +49,7 @@ export default function ShoppingModePage() {
 
         await supabase
             .from('items')
-            .update({ in_pantry: newStatus, is_completed: newStatus } as any)
+            .update({ in_pantry: newStatus, is_completed: newStatus } as never)
             .eq('id', itemId);
     };
 
@@ -97,8 +97,8 @@ export default function ShoppingModePage() {
                     <button
                         onClick={() => setActiveTab('todo')}
                         className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'todo'
-                                ? 'bg-white text-primary-600 shadow-sm'
-                                : 'text-slate-400 hover:text-slate-600'
+                            ? 'bg-white text-primary-600 shadow-sm'
+                            : 'text-slate-400 hover:text-slate-600'
                             }`}
                     >
                         <ShoppingBag size={18} />
@@ -107,8 +107,8 @@ export default function ShoppingModePage() {
                     <button
                         onClick={() => setActiveTab('done')}
                         className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'done'
-                                ? 'bg-white text-emerald-600 shadow-sm'
-                                : 'text-slate-400 hover:text-slate-600'
+                            ? 'bg-white text-emerald-600 shadow-sm'
+                            : 'text-slate-400 hover:text-slate-600'
                             }`}
                     >
                         <Check size={18} />
@@ -137,8 +137,8 @@ export default function ShoppingModePage() {
                     </div>
                 ) : (
                     Object.keys(groupedItems).sort().map(category => (
-                        <div key={category}>
-                            <h3 className="text-lg font-bold text-slate-600 mb-3 px-2 flex items-center gap-2">
+                        <div key={category} className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-backwards" style={{ animationDelay: `${Object.keys(groupedItems).indexOf(category) * 100}ms` }}>
+                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1 flex items-center gap-2">
                                 {category}
                                 <span className="text-xs font-normal bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full">
                                     {groupedItems[category].length}
@@ -150,12 +150,12 @@ export default function ShoppingModePage() {
                                         key={item.id}
                                         onClick={() => toggleItem(item.id, item.in_pantry)}
                                         className={`w-full p-5 rounded-2xl shadow-sm border-2 flex items-center justify-between active:scale-95 transition-all text-left group ${activeTab === 'todo'
-                                            ? 'bg-white border-slate-100 hover:border-primary-100'
+                                            ? 'bg-white border-slate-100 shadow-sm hover:border-emerald-200 hover:shadow-emerald-100/50'
                                             : 'bg-slate-50 border-slate-100 opacity-60 hover:opacity-100'
                                             }`}
                                     >
                                         <div>
-                                            <p className={`text-xl font-bold transition-colors ${activeTab === 'todo' ? 'text-slate-800' : 'text-slate-500 line-through'
+                                            <p className={`text-lg font-bold transition-all ${activeTab === 'todo' ? 'text-slate-800' : 'text-slate-400 line-through decoration-2 decoration-slate-300'
                                                 }`}>
                                                 {item.name}
                                             </p>
@@ -164,10 +164,10 @@ export default function ShoppingModePage() {
                                             )}
                                         </div>
                                         <div className={`h-10 w-10 rounded-full border-2 flex items-center justify-center transition-all ${activeTab === 'todo'
-                                            ? 'border-slate-200 text-transparent group-hover:border-primary-500 group-hover:text-primary-500'
-                                            : 'bg-primary-100 border-primary-500 text-primary-600'
+                                            ? 'bg-slate-100 border-slate-200 text-slate-300 group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-white'
+                                            : 'bg-blue-100 border-blue-500 text-blue-600'
                                             }`}>
-                                            {activeTab === 'todo' ? <Check size={24} strokeWidth={3} /> : <RefreshCcw size={20} />}
+                                            {activeTab === 'todo' ? <Check size={20} strokeWidth={4} /> : <Package size={20} />}
                                         </div>
                                     </button>
                                 ))}

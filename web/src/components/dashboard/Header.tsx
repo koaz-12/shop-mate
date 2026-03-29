@@ -4,7 +4,7 @@ import { useStore } from '@/store/useStore';
 import { useRouter, usePathname } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
-export default function Header() {
+export default function Header({ title, subtitle }: { title?: string, subtitle?: string }) {
     const { user, profile, connectionStatus, triggerRefresh } = useStore();
     const router = useRouter();
 

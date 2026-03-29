@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useStore } from '@/store/useStore';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 import {
     ShoppingBasket,
     Wallet,
@@ -20,8 +22,7 @@ export default function HomePage() {
     const router = useRouter();
 
     // Stats
-    const pendingItems = items.filter(i => !i.is_completed).length;
-    const completedItems = items.filter(i => i.is_completed).length;
+    const pendingItems = items.filter(i => !i.in_pantry && !i.deleted_at).length;
 
     // Calculate Budget
     const monthlyBudget = household?.budget || 0;
@@ -30,6 +31,21 @@ export default function HomePage() {
     }, 0);
     const spendPercentage = monthlyBudget > 0 ? (currentSpend / monthlyBudget) * 100 : 0;
     const currency = household?.currency || '$';
+
+    // Budget Alert Logic (Show once per session)
+    useEffect(() => {
+        if (monthlyBudget > 0 && spendPercentage >= 80) {
+            const hasShown = sessionStorage.getItem('budgetAlertShown');
+            if (hasShown !== 'true') {
+                if (spendPercentage >= 100) {
+                    toast.error(`¡Has excedido tu presupuesto mensual de ${currency}${monthlyBudget}!`, { duration: 6000, style: { background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' } });
+                } else {
+                    toast.error(`Precaución: Llevas el ${spendPercentage.toFixed(0)}% del presupuesto.`, { icon: '⚠️', duration: 5000, style: { background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a' } });
+                }
+                sessionStorage.setItem('budgetAlertShown', 'true');
+            }
+        }
+    }, [monthlyBudget, spendPercentage, currency]);
 
     return (
         <div className="min-h-screen bg-slate-50 pb-24">

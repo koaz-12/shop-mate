@@ -4,6 +4,7 @@ import { useStore } from '@/store/useStore';
 import { ChevronDown, Plus, List } from 'lucide-react';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
+import toast from 'react-hot-toast';
 
 export default function ListSelector() {
     const { lists, currentList, setCurrentList, setLists, household } = useStore();
@@ -29,7 +30,7 @@ export default function ListSelector() {
 
         const { data, error } = await supabase
             .from('lists' as any)
-            .insert(newList)
+            .insert(newList as never)
             .select()
             .single();
 
@@ -40,7 +41,7 @@ export default function ListSelector() {
             setNewListName('');
             setIsOpen(false);
         } else {
-            alert('Error creando lista');
+            toast.error('Error creando lista');
         }
     };
 

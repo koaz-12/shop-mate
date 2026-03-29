@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { Item } from '@/types';
 import SwipeableListItem from './SwipeableListItem';
-import { Coffee, Package, ShoppingCart, RefreshCcw, Trash2, ArrowRight, MoreVertical, Check, Share2, CheckSquare } from 'lucide-react';
+import { Coffee, Package, ShoppingCart, RefreshCcw, Trash2, ArrowRight, MoreVertical, Check, Share2, CheckSquare, Search, ArrowDownUp, ChevronDown, X } from 'lucide-react';
 import { useItems } from '@/hooks/useItems';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -174,6 +174,49 @@ export default function ShoppingList() {
                 >
                     <CheckSquare size={20} />
                 </button>
+            </div>
+
+            {/* Search and Sort Toolbar */}
+            <div className="flex gap-2 mb-4 animate-in fade-in duration-300">
+                <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search size={16} className="text-slate-400" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Buscar artículo..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-white/80 backdrop-blur-sm border-none shadow-sm rounded-xl pl-10 pr-10 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 transition-all font-medium text-slate-700"
+                    />
+                    {searchTerm && (
+                        <button
+                            onClick={() => setSearchTerm('')}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                        >
+                            <X size={16} />
+                        </button>
+                    )}
+                </div>
+
+                <div className="relative shadow-sm rounded-xl overflow-hidden bg-white/80 backdrop-blur-sm">
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as any)}
+                        className="h-full w-full appearance-none bg-transparent font-medium text-sm text-slate-600 border-none pl-10 pr-10 py-2.5 focus:ring-2 focus:ring-primary-500 cursor-pointer outline-none"
+                        title="Ordenar por"
+                    >
+                        <option value="category">Categoría</option>
+                        <option value="name">Alfabético</option>
+                        <option value="price-desc">Más Caro</option>
+                    </select>
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <ArrowDownUp size={16} className="text-slate-500" />
+                    </div>
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <ChevronDown size={16} className="text-slate-400" />
+                    </div>
+                </div>
             </div>
 
             {/* Shopping Button Banner */}

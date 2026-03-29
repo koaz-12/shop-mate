@@ -23,7 +23,7 @@ export function useItems() {
 
         try {
             // @ts-ignore
-            const { error } = await supabase.from('items').insert(itemWithId);
+            const { error } = await (supabase.from('items') as any).insert(itemWithId);
             if (error) throw error;
         } catch (e: any) {
             console.error('Offline / Error adding item:', e);
@@ -55,8 +55,7 @@ export function useItems() {
                     toast.success(`1 consumido. Quedan ${newQty}`);
 
                     try {
-                        const { error } = await supabase
-                            .from('items' as any)
+                        const { error } = await (supabase.from('items') as any)
                             .update({ quantity: newQty })
                             .eq('id', itemId);
                         if (error) throw error;
@@ -84,8 +83,7 @@ export function useItems() {
         updateItem(itemId, updates);
 
         try {
-            const { error } = await supabase
-                .from('items' as any)
+            const { error } = await (supabase.from('items') as any)
                 .update(updates)
                 .eq('id', itemId);
 
@@ -102,28 +100,12 @@ export function useItems() {
         }
     }, [updateItem, supabase, queueAction, user, items]); // Added items dependency
 
-    const duplicateItem = useCallback(async (originalItem: Item, quantity: string = "1") => {
-        await addNewItem({
-            name: originalItem.name,
-            category: originalItem.category,
-            price: originalItem.price,
-            household_id: originalItem.household_id,
-            list_id: originalItem.list_id,
-            in_pantry: false,
-            is_completed: false,
-            quantity: quantity,
-            created_by: user?.id
-        });
-        toast.success(`Agregado a la lista: ${originalItem.name} (${quantity})`);
-    }, [addNewItem, user]);
-
     const updateItemDetails = useCallback(async (itemId: string, updates: Partial<Item>) => {
         // Optimistic
         updateItem(itemId, updates);
 
         try {
-            const { error } = await supabase
-                .from('items' as any)
+            const { error } = await (supabase.from('items') as any)
                 .update(updates)
                 .eq('id', itemId);
 
@@ -139,13 +121,48 @@ export function useItems() {
         }
     }, [updateItem, supabase, queueAction]);
 
+    const duplicateItem = useCallback(async (originalItem: Item, quantity: string = "1") => {
+        // Check if item already exists in Shopping List (not pantry, same name)
+        const existingListItem = items.find(i =>
+            i.name.toLowerCase() === originalItem.name.toLowerCase() &&
+            !i.in_pantry &&
+            !i.deleted_at
+        );
+
+        if (existingListItem) {
+            // Merge Quantities
+            const currentQty = parseInt(existingListItem.quantity || "1");
+            const additionalQty = parseInt(quantity || "1");
+
+            if (!isNaN(currentQty) && !isNaN(additionalQty)) {
+                const newQty = (currentQty + additionalQty).toString();
+                updateItemDetails(existingListItem.id, { quantity: newQty });
+                toast.success(`Cantidad actualizada: ${originalItem.name} (${newQty})`);
+                return;
+            }
+        }
+
+        // If not found or invalid quantity logic, create new
+        await addNewItem({
+            name: originalItem.name,
+            category: originalItem.category,
+            price: originalItem.price,
+            household_id: originalItem.household_id,
+            list_id: originalItem.list_id,
+            in_pantry: false,
+            is_completed: false,
+            quantity: quantity,
+            created_by: user?.id
+        });
+        toast.success(`Agregado a la lista: ${originalItem.name} (${quantity})`);
+    }, [addNewItem, user, items, updateItemDetails]);
+
     const softDeleteItem = useCallback(async (itemId: string) => {
         // Optimistic
         removeItem(itemId);
 
         try {
-            const { error } = await supabase
-                .from('items' as any)
+            const { error } = await (supabase.from('items') as any)
                 .update({ deleted_at: new Date().toISOString() })
                 .eq('id', itemId);
             if (error) throw error;

@@ -1,0 +1,33 @@
+﻿src/app/home/page.tsx(36,21): error TS2322: Type '{ title: string; subtitle: string; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'title' does not exist on type 'IntrinsicAttributes'.
+src/app/onboarding/page.tsx(41,18): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, any, never, "POST">', gave the following error.
+    Argument of type '{ name: string; invite_code: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, any, never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'name' does not exist in type 'never[]'.
+src/app/onboarding/page.tsx(49,18): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, any, never, "POST">', gave the following error.
+    Argument of type '{ user_id: string; household_id: any; role: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, any, never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'user_id' does not exist in type 'never[]'.
+src/app/onboarding/page.tsx(51,45): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/onboarding/page.tsx(73,74): error TS2345: Argument of type '{ invite_code_input: string; }' is not assignable to parameter of type 'undefined'.
+src/app/recycle-bin/page.tsx(43,21): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/settings/page.tsx(83,31): error TS2339: Property 'success' does not exist on type 'never'.
+src/app/settings/page.tsx(83,61): error TS2339: Property 'message' does not exist on type 'never'.
+src/app/settings/page.tsx(108,21): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/settings/page.tsx(126,21): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/settings/page.tsx(145,21): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/settings/page.tsx(231,21): error TS2322: Type '{ title: string; subtitle: string; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'title' does not exist on type 'IntrinsicAttributes'.
+src/app/shopping/page.tsx(52,21): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/components/dashboard/BarcodeScanner.tsx(32,52): error TS2339: Property 'barcode' does not exist on type 'HouseholdProduct'.
+src/components/dashboard/BulkActionsBar.tsx(55,25): error TS2322: Type '"danger"' is not assignable to type '"link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined'.
+src/components/dashboard/ListSelector.tsx(32,21): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, any, never, "POST">', gave the following error.
+    Argument of type '{ name: string; household_id: string; icon: null; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, any, never, "POST">', gave the following error.
+    Argument of type '{ name: string; household_id: string; icon: null; }' is not assignable to parameter of type 'never[]'.
+      Type '{ name: string; household_id: string; icon: null; }' is missing the following properties from type 'never[]': length, pop, push, concat, and 35 more.
+src/components/ui/ConfirmationModal.tsx(53,29): error TS2322: Type '"primary" | "danger"' is not assignable to type '"link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined'.
+  Type '"primary"' is not assignable to type '"link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined'.

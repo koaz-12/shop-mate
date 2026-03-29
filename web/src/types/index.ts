@@ -46,7 +46,6 @@ export type Item = {
     in_pantry: boolean;
     quantity: string | null;
     price?: number | null;
-    price?: number | null;
     category: string;
     created_by: string | null;
     bought_by?: string | null;
@@ -133,4 +132,5 @@ export interface HouseholdProduct {
     times_bought: number;
     recurrence_interval?: number | null;
     next_occurrence?: string | null;
+    barcode?: string | null;
 }

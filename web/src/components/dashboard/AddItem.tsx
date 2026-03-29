@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { Plus, Sparkles, Mic, MicOff, ScanBarcode, Package, Check } from 'lucide-react';
@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import useVoiceInput from '@/hooks/useVoiceInput';
 import { useItems } from '@/hooks/useItems'; // Added import
 import BarcodeScanner from './BarcodeScanner';
+import toast from 'react-hot-toast';
 
 export default function AddItem() {
     const [name, setName] = useState('');
@@ -50,8 +51,63 @@ export default function AddItem() {
 
     const handleNameChange = (val: string) => {
         setName(val);
+        // Only auto-categorize if we don't already have one selected, or if user is still typing fast
         const detected = detectCategory(val);
         if (detected) setSelectedCategory(detected);
+    };
+
+    // Autocomplete Logic
+    const suggestions = useMemo(() => {
+        const trimmed = name.trim();
+        if (!trimmed || trimmed.length < 2) return [];
+
+        const lowerName = trimmed.toLowerCase();
+        const results = [];
+        const seen = new Set<string>();
+
+        // 1. Catalog
+        for (const catItem of catalog) {
+            if (catItem.name.toLowerCase().includes(lowerName)) {
+                if (!seen.has(catItem.name.toLowerCase())) {
+                    seen.add(catItem.name.toLowerCase());
+                    results.push({
+                        name: catItem.name,
+                        category: catItem.category_name || 'Otros',
+                        price: catItem.last_price
+                    });
+                }
+            }
+        }
+
+        // 2. Active Items
+        for (const actItem of items) {
+             if (actItem.name.toLowerCase().includes(lowerName)) {
+                 if (!seen.has(actItem.name.toLowerCase())) {
+                    seen.add(actItem.name.toLowerCase());
+                    results.push({
+                        name: actItem.name,
+                        category: actItem.category || 'Otros',
+                        price: actItem.price
+                    });
+                 }
+             }
+        }
+
+        // Don't show suggestion if the user has typed it exactly
+        if (results.length === 1 && results[0].name.toLowerCase() === lowerName) {
+            return []; 
+        }
+
+        return results.slice(0, 4);
+    }, [name, catalog, items]);
+
+    const handleSuggestionClick = (suggestion: any) => {
+        setName(suggestion.name);
+        setSelectedCategory(suggestion.category);
+        if (suggestion.price) setPrice(suggestion.price.toString());
+        
+        // Ensure input stays expanded so user can edit quantity
+        setIsExpanded(true);
     };
 
     const handleSmartComplete = (scannedName: string, barcode: string) => {
@@ -93,7 +149,7 @@ export default function AddItem() {
                 (activeView === 'shopping-list' && !existingItem.in_pantry);
 
             if (!isInCurrentView) {
-                const shouldMove = confirm(
+                const shouldMove = window.confirm(
                     activeView === 'shopping-list'
                         ? `Tienes "${existingItem.name}" en la despensa. ¿Mover a lista de compra?`
                         : `"${existingItem.name}" ya está en la lista. ¿Mover a despensa?`
@@ -110,7 +166,7 @@ export default function AddItem() {
                 }
                 return;
             }
-            alert(`"${existingItem.name}" ya está en tu lista.`);
+            toast.error(`"${existingItem.name}" ya está en tu lista.`);
             return;
         }
 
@@ -188,6 +244,29 @@ export default function AddItem() {
 
                 <div className="flex gap-2 items-start">
                     <div className="relative flex-1 space-y-2">
+                        {/* Autocomplete Popup */}
+                        {isExpanded && suggestions.length > 0 && (
+                            <div className="absolute bottom-full mb-2 left-0 right-0 bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 overflow-hidden z-50 animate-in slide-in-from-bottom-2 fade-in">
+                                {suggestions.map((s, i) => (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        onClick={() => handleSuggestionClick(s)}
+                                        className="w-full text-left px-4 py-3 border-b border-slate-50 last:border-0 hover:bg-emerald-50 flex items-center justify-between transition-colors group"
+                                    >
+                                        <div>
+                                            <p className="font-bold text-slate-800 text-sm group-hover:text-emerald-700">{s.name}</p>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">{s.category}</span>
+                                                {s.price && <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">${s.price}</span>}
+                                            </div>
+                                        </div>
+                                        <Plus className="text-slate-300 group-hover:text-emerald-500 transition-colors" size={20} />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
                         <input
                             type="text"
                             value={name}

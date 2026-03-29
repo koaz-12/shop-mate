@@ -8,6 +8,7 @@ import { Item } from '@/types';
 import { ArrowLeft, Trash2, RefreshCw, X, AlertOctagon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 export default function RecycleBinPage() {
     const supabase = createClient();
@@ -40,14 +41,14 @@ export default function RecycleBinPage() {
 
         const { error } = await supabase
             .from('items')
-            .update({ deleted_at: null } as any)
+            .update({ deleted_at: null } as never)
             .eq('id', id);
 
-        if (error) alert('Error al restaurar');
+        if (error) toast.error('Error al restaurar');
     };
 
     const handlePermanentDelete = async (id: string) => {
-        if (!confirm('¿Eliminar permanentemente? No se puede deshacer.')) return;
+        if (!window.confirm('¿Eliminar permanentemente? No se puede deshacer.')) return;
 
         setDeletedItems(prev => prev.filter(i => i.id !== id));
 
@@ -56,11 +57,11 @@ export default function RecycleBinPage() {
             .delete()
             .eq('id', id);
 
-        if (error) alert('Error al eliminar');
+        if (error) toast.error('Error al eliminar');
     };
 
     const handleEmptyTrash = async () => {
-        if (!confirm('¿Vaciar TODA la papelera? Esta acción es irreversible.')) return;
+        if (!window.confirm('¿Vaciar TODA la papelera? Esta acción es irreversible.')) return;
 
         const ids = deletedItems.map(i => i.id);
         setDeletedItems([]);
@@ -70,7 +71,7 @@ export default function RecycleBinPage() {
             .delete()
             .in('id', ids);
 
-        if (error) alert('Error al vaciar papelera');
+        if (error) toast.error('Error al vaciar papelera');
     };
 
     return (
