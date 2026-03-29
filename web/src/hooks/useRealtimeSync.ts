@@ -10,6 +10,9 @@ export function useRealtimeSync() {
     const householdId = household?.id;
     const channelRef = useRef<RealtimeChannel | null>(null);
 
+    // Track if we are visibly mounting or waking up
+    const isWakingUpRef = useRef(false);
+
     useEffect(() => {
         if (!householdId) return;
 
@@ -42,6 +45,7 @@ export function useRealtimeSync() {
                         event: '*',
                         schema: 'public',
                         table: 'items',
+                        filter: `household_id=eq.${householdId}`, // Only receive items for THIS household
                     },
                     (payload) => {
                         console.log('📥 Realtime Payload:', payload);
@@ -82,7 +86,42 @@ export function useRealtimeSync() {
             connect();
         }, 500);
 
+        // Listeners para forzar reconexiones instántaneas desde PWA Background o modo Off-Line
+        const forceReconnect = () => {
+            if (!householdId) return;
+            // Evitar spam de eventos: solo forzamos limpieza si la app cree que está conectada 
+            // pero el socket está dormido, o si simplemente estamos despertando.
+            isWakingUpRef.current = true;
+            console.log('⚡ Fuerza de Reconexión Activada (Online/Wake-up)');
+            setConnectionStatus('connecting');
+            
+            // Destruir cualquier canal zombie inmediatamente para que el connect cree uno limpio
+            if (channelRef.current) {
+                supabase.removeChannel(channelRef.current);
+                channelRef.current = null;
+            }
+            
+            // Limpiar cualquier intento previo que estuviera encolado
+            clearTimeout(connectTimer);
+            connect();
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                forceReconnect();
+            }
+        };
+
+        const handleOnline = () => {
+            forceReconnect();
+        };
+
+        window.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('online', handleOnline);
+
         return () => {
+            window.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('online', handleOnline);
             clearTimeout(connectTimer); // Cancel pending connection
             if (channelRef.current) {
                 console.log('🔌 Cleaning up channel...');

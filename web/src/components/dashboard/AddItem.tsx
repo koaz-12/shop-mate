@@ -10,6 +10,7 @@ import useVoiceInput from '@/hooks/useVoiceInput';
 import { useItems } from '@/hooks/useItems'; // Added import
 import BarcodeScanner from './BarcodeScanner';
 import toast from 'react-hot-toast';
+import { validateItemInput } from '@/lib/validators';
 
 export default function AddItem() {
     const [name, setName] = useState('');
@@ -140,6 +141,13 @@ export default function AddItem() {
         const trimmedName = name.trim();
         if (!trimmedName || !household || !user || !currentList) return;
 
+        // Validate inputs before submission
+        const { isValid, errors } = validateItemInput(trimmedName, price, quantity);
+        if (!isValid) {
+            toast.error(errors[0]); // Show first error
+            return;
+        }
+
         // Smart Duplicate Check
         const existingItem = items.find(i => i.name.toLowerCase() === trimmedName.toLowerCase());
 
@@ -181,13 +189,11 @@ export default function AddItem() {
             household_id: household.id,
             list_id: currentList?.id,
             created_by: user.id,
-            is_completed: false,
             barcode: scannedBarcode
         };
 
         if (activeView === 'pantry') {
-            newItem.in_pantry = true;
-            newItem.is_completed = true; // Pantry items usually start as "bought" logic? No, they just exist.
+            newItem.in_pantry = true; // Pantry items start as "in pantry"
         }
 
         // Use the Offline-Resilient Hook

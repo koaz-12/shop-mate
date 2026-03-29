@@ -11,6 +11,7 @@ import EditItemModal from './EditItemModal';
 import EmptyState from './EmptyState';
 import BulkActionsBar from './BulkActionsBar';
 import PantryItemSheet from './PantryItemSheet';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
 
 export default function ShoppingList() {
     const { items, household, currentList, activeView, setActiveView } = useStore();
@@ -29,6 +30,14 @@ export default function ShoppingList() {
     // Selection State
     const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+
+    // Confirmation modal state (replaces native confirm())
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        description: string;
+        onConfirm: () => void;
+    }>({ isOpen: false, title: '', description: '', onConfirm: () => {} });
 
     // Subscription only (CRUD via hooks)
     const supabase = createClient();
@@ -101,15 +110,20 @@ export default function ShoppingList() {
         if (navigator.vibrate) navigator.vibrate(5);
     };
 
-    const handleBulkDelete = async () => {
-        if (!confirm(`¿Borrar ${selectedItems.size} elementos?`)) return;
-
-        const ids = Array.from(selectedItems);
-        ids.forEach(id => softDeleteItem(id));
-
-        setSelectedItems(new Set());
-        setIsSelectionMode(false);
-        if (navigator.vibrate) navigator.vibrate(10);
+    const handleBulkDelete = () => {
+        setConfirmModal({
+            isOpen: true,
+            title: `¿Borrar ${selectedItems.size} elemento${selectedItems.size !== 1 ? 's' : ''}?`,
+            description: 'Esta acción no se puede deshacer.',
+            onConfirm: () => {
+                const ids = Array.from(selectedItems);
+                ids.forEach(id => softDeleteItem(id));
+                setSelectedItems(new Set());
+                setIsSelectionMode(false);
+                if (navigator.vibrate) navigator.vibrate(10);
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            }
+        });
     };
 
     const handleBulkMove = async () => {
@@ -359,6 +373,16 @@ export default function ShoppingList() {
                 }}
                 onDelete={handleBulkDelete}
                 onMove={handleBulkMove}
+            />
+
+            {/* Confirmation Modal for Bulk Delete */}
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                title={confirmModal.title}
+                description={confirmModal.description}
+                onConfirm={confirmModal.onConfirm}
+                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                variant="danger"
             />
         </div>
     );

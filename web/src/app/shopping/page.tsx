@@ -2,16 +2,18 @@
 
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Coffee, Package, ShoppingBag, Plus, RefreshCcw } from 'lucide-react';
-import { cn } from '@/lib/utils'; // Assuming cn exists, else standard string concat
+import { ArrowLeft, Check, Coffee, Package, ShoppingBag, RefreshCcw } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useItems } from '@/hooks/useItems';
 
 export default function ShoppingModePage() {
     const { items, updateItem } = useStore();
+    const { toggleItem } = useItems();
     const router = useRouter();
     const supabase = createClient();
-    const [wakeLock, setWakeLock] = useState<any>(null);
+    const wakeLockRef = useRef<any>(null);
     const [activeTab, setActiveTab] = useState<'todo' | 'done'>('todo');
 
     // Filters
@@ -30,27 +32,19 @@ export default function ShoppingModePage() {
         const requestWakeLock = async () => {
             try {
                 if ('wakeLock' in navigator) {
-                    const lock = await (navigator as any).wakeLock.request('screen');
-                    setWakeLock(lock);
+                    wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
                 }
             } catch (err) {
                 console.error('Wake Lock Error:', err);
             }
         };
         requestWakeLock();
-        return () => wakeLock?.release();
+        return () => { wakeLockRef.current?.release(); };
     }, []);
 
-    const toggleItem = async (itemId: string, currentStatus: boolean) => {
+    const handleToggleItem = (itemId: string, currentStatus: boolean) => {
         if (navigator.vibrate) navigator.vibrate(50);
-
-        const newStatus = !currentStatus;
-        updateItem(itemId, { in_pantry: newStatus, is_completed: newStatus });
-
-        await supabase
-            .from('items')
-            .update({ in_pantry: newStatus, is_completed: newStatus } as never)
-            .eq('id', itemId);
+        toggleItem(itemId, currentStatus); // Uses offline-resilient hook
     };
 
     // Grouping
@@ -148,7 +142,7 @@ export default function ShoppingModePage() {
                                 {groupedItems[category].map(item => (
                                     <button
                                         key={item.id}
-                                        onClick={() => toggleItem(item.id, item.in_pantry)}
+                                        onClick={() => handleToggleItem(item.id, item.in_pantry)}
                                         className={`w-full p-5 rounded-2xl shadow-sm border-2 flex items-center justify-between active:scale-95 transition-all text-left group ${activeTab === 'todo'
                                             ? 'bg-white border-slate-100 shadow-sm hover:border-emerald-200 hover:shadow-emerald-100/50'
                                             : 'bg-slate-50 border-slate-100 opacity-60 hover:opacity-100'

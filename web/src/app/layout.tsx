@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body className={cn(inter.className, 'min-h-screen bg-slate-50 text-slate-900')}>
         <Toaster position="bottom-center" />
         <ThemeProvider

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
 import { useItems } from '@/hooks/useItems';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Plus, RotateCcw, BarChart2, Trash2, X, Check, Package, ShoppingCart } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
@@ -34,6 +35,7 @@ export default function HistoryPage() {
     }>({ isOpen: false, title: '', description: '', onConfirm: () => { } });
 
     const supabase = createClient();
+    const router = useRouter();
     const { household, user, items: activeItems, addItem, currentList } = useStore(); // Get active items
     const { softDeleteItem, addNewItem, toggleItem, duplicateItem } = useItems();
 
@@ -162,11 +164,10 @@ export default function HistoryPage() {
             name: item.name,
             category: item.category,
             quantity: item.quantity,
-            in_pantry: false, // Default to to-buy
+            in_pantry: false,
             household_id: household.id,
             list_id: currentList?.id,
-            created_by: user.id,
-            is_completed: false
+            created_by: user.id
         };
 
         await addNewItem(newItem);
@@ -202,7 +203,7 @@ export default function HistoryPage() {
                     <h2 className="text-xl font-bold text-slate-800">Catálogo</h2>
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={() => window.location.href = '/analytics'}
+                            onClick={() => router.push('/analytics')}
                             className="bg-white p-2 text-indigo-600 rounded-xl shadow-sm border border-slate-100 hover:bg-indigo-50"
                         >
                             <BarChart2 size={20} />

@@ -27,7 +27,10 @@ export default function AuthCheck({ children }: { children: React.ReactNode }) {
     const setLists = useStore((state) => state.setLists);
     const setCurrentList = useStore((state) => state.setCurrentList);
 
-    const [isChecking, setIsChecking] = useState(true);
+    // Stale-While-Revalidate: If we have cached data from a previous session,
+    // render the app immediately and refresh in background.
+    const hasCachedData = !!useStore.getState().household;
+    const [isChecking, setIsChecking] = useState(!hasCachedData);
 
     useEffect(() => {
         const checkAuth = async () => {
