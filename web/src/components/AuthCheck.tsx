@@ -152,11 +152,40 @@ export default function AuthCheck({ children }: { children: React.ReactNode }) {
 
     if (isChecking) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 gap-4 animate-in fade-in duration-300">
-                <div className="h-16 w-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-3xl animate-pulse shadow-xl shadow-emerald-200/50 flex items-center justify-center">
-                    <div className="h-8 w-8 rounded-full border-4 border-white/30 border-t-white animate-spin" />
-                </div>
-                <p className="text-slate-400 font-medium text-sm animate-pulse">Sincronizando familia...</p>
+            <div className="flex h-screen w-full flex-col bg-slate-50 relative overflow-hidden">
+                {/* Header Skeleton */}
+                <header className="flex h-16 w-full items-center justify-between px-4 sm:px-6 bg-white border-b border-slate-100">
+                    <div className="h-8 w-8 rounded-full bg-slate-200 animate-pulse" />
+                    <div className="h-6 w-32 rounded-lg bg-slate-200 animate-pulse" />
+                    <div className="h-8 w-8 rounded-full bg-slate-200 animate-pulse" />
+                </header>
+
+                {/* Content Area Skeleton */}
+                <main className="flex-1 overflow-auto p-4 sm:p-6 sm:px-8 max-w-2xl mx-auto w-full space-y-4">
+                    <div className="h-24 w-full rounded-2xl bg-slate-200 animate-pulse mb-6" />
+                    <div className="space-y-3">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="h-16 w-full rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center px-4 gap-4 animate-pulse">
+                                <div className="h-8 w-8 rounded-full bg-slate-200" />
+                                <div className="flex-1 space-y-2">
+                                    <div className="h-3 w-1/2 bg-slate-200 rounded-lg" />
+                                    <div className="h-2 w-1/4 bg-slate-200 rounded-lg" />
+                                </div>
+                                <div className="h-6 w-12 bg-slate-200 rounded-lg" />
+                            </div>
+                        ))}
+                    </div>
+                </main>
+
+                {/* Bottom Nav Skeleton */}
+                <nav className="h-16 w-full bg-white border-t border-slate-100 flex items-center justify-around px-2 sm:px-6 z-10 sticky bottom-0">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="flex flex-col items-center gap-1">
+                            <div className="h-6 w-6 rounded-md bg-slate-200 animate-pulse" />
+                            <div className="h-1.5 w-8 rounded-full bg-slate-200 animate-pulse" />
+                        </div>
+                    ))}
+                </nav>
             </div>
         );
     }

@@ -16,6 +16,8 @@ import {
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import Header from '@/components/dashboard/Header';
+import SmartRestockWidget from '@/components/dashboard/SmartRestockWidget';
+import ActivityFeed from '@/components/dashboard/ActivityFeed'; // Nuevo
 
 export default function HomePage() {
     const { user, profile, household, items, loyaltyCards, catalog } = useStore();
@@ -101,6 +103,9 @@ export default function HomePage() {
                         </Link>
                     </div>
 
+                    {/* Smart Restock Suggestions */}
+                    <SmartRestockWidget />
+
                     {/* Quick Actions */}
                     <div>
                         <h2 className="text-sm font-bold text-slate-900 mb-4">Acciones Rápidas</h2>
@@ -128,6 +133,9 @@ export default function HomePage() {
                             </Link>
                         </div>
                     </div>
+
+                    {/* Activity Feed */}
+                    <ActivityFeed />
 
                     {/* Loyalty Preview (Horizontal Scroll) */}
                     {loyaltyCards.length > 0 && (

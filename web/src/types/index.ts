@@ -44,16 +44,18 @@ export type List = {
 export type Item = {
     id: string;
     name: string;
-    is_completed: boolean; // Deprecated, kept for types safety until full removal
     in_pantry: boolean;
     quantity: string | null;
     price?: number | null;
     category: string;
     created_by: string | null;
     bought_by?: string | null;
+    assigned_to?: string | null; // Nuevo
+    notes?: string | null;       // Nuevo
     household_id: string;
     list_id?: string | null;
     created_at: string;
+    updated_at?: string;         // Nuevo
     deleted_at?: string | null;
 };
 
@@ -98,7 +100,7 @@ export type Database = {
             };
             items: {
                 Row: Item;
-                Insert: Omit<Item, 'id' | 'created_at'> & { is_completed?: boolean, in_pantry?: boolean, quantity?: string | null, category?: string };
+                Insert: Omit<Item, 'id' | 'created_at'> & { in_pantry?: boolean, quantity?: string | null, category?: string };
                 Update: Partial<Item>;
                 Relationships: [];
             };

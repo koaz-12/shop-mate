@@ -3,12 +3,14 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useStore } from '@/store/useStore';
-import { Plus, Sparkles, Mic, MicOff, ScanBarcode, Package, Check } from 'lucide-react';
+import { Plus, Sparkles, Mic, MicOff, ScanBarcode, Package, Check, ClipboardPaste, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import useVoiceInput from '@/hooks/useVoiceInput';
 import { useItems } from '@/hooks/useItems'; // Added import
 import BarcodeScanner from './BarcodeScanner';
+import PasteListModal from './PasteListModal';
+import ScanReceiptModal from './ScanReceiptModal';
 import toast from 'react-hot-toast';
 import { validateItemInput } from '@/lib/validators';
 
@@ -19,6 +21,8 @@ export default function AddItem() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
+    const [showPasteModal, setShowPasteModal] = useState(false);
+    const [showOCRModal, setShowOCRModal] = useState(false);
     const [scannedBarcode, setScannedBarcode] = useState<string | null>(null); // New State
     const supabase = createClient();
     const { household, user, activeView, items, categories, catalog, currentList } = useStore();
@@ -166,8 +170,7 @@ export default function AddItem() {
                 if (shouldMove) {
                     // @ts-ignore
                     await supabase.from('items' as any).update({
-                        in_pantry: !existingItem.in_pantry,
-                        is_completed: false
+                        in_pantry: !existingItem.in_pantry
                     } as any).eq('id', existingItem.id);
                     clearForm();
                     return;
@@ -199,6 +202,74 @@ export default function AddItem() {
         // Use the Offline-Resilient Hook
         await addNewItem(newItem);
         clearForm();
+    };
+
+    const handleProcessPaste = async (lines: string[]) => {
+        if (!household || !user || !currentList) return;
+        
+        let successCount = 0;
+        
+        for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            
+            // Simple validation per line
+            const { isValid } = validateItemInput(trimmed, '', '');
+            if (!isValid) continue;
+            
+            // Deduplication
+            const exists = items.find(i => i.name.toLowerCase() === trimmed.toLowerCase());
+            if (exists) continue; // Skip duplicates for paste
+            
+            const category = detectCategory(trimmed) || 'Otros';
+            
+            const newItem = {
+                name: trimmed,
+                category,
+                quantity: null,
+                price: null,
+                in_pantry: activeView === 'pantry',
+                household_id: household.id,
+                list_id: currentList?.id,
+                created_by: user.id,
+            };
+            
+            // Use the hook for fire-and-forget background insertion
+            addNewItem(newItem);
+            successCount++;
+        }
+        
+        if (successCount > 0) {
+            toast.success(`${successCount} item(s) agregados mágicamente ✨`);
+        } else {
+            toast('No se encontraron items nuevos válidos', { icon: 'ℹ️' });
+        }
+    };
+
+    const handleProcessOCR = (scannedItems: any[]) => {
+        if (!household || !user || !currentList) return;
+        
+        let successCount = 0;
+        
+        for (const i of scannedItems) {
+            const newItem = {
+                name: i.name,
+                category: detectCategory(i.name) || 'Otros',
+                quantity: i.quantity || null,
+                price: i.price !== null ? i.price : null,
+                in_pantry: activeView === 'pantry',
+                household_id: household.id,
+                list_id: currentList?.id,
+                created_by: user.id,
+            };
+            
+            addNewItem(newItem);
+            successCount++;
+        }
+        
+        if (successCount > 0) {
+            toast.success(`${successCount} items extraídos del ticket 🧾`);
+        }
     };
 
     const clearForm = () => {
@@ -302,7 +373,27 @@ export default function AddItem() {
                             />
                         </div>
 
-                        <div className="absolute right-2 top-2 h-10 flex items-center gap-1">
+                        <div className={`absolute right-2 top-2 h-10 flex items-center gap-1 transition-all ${isExpanded || name ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                            {/* Receipt OCR */}
+                            <button
+                                type="button"
+                                onClick={() => setShowOCRModal(true)}
+                                className="h-8 w-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-emerald-600 transition-all"
+                                title="Escanear Ticket"
+                            >
+                                <Receipt size={18} />
+                            </button>
+
+                            {/* Magic Paste */}
+                            <button
+                                type="button"
+                                onClick={() => setShowPasteModal(true)}
+                                className="h-8 w-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-emerald-600 transition-all"
+                                title="Pegar lista"
+                            >
+                                <ClipboardPaste size={18} />
+                            </button>
+
                             {/* Scanner Trigger */}
                             <button
                                 type="button"
@@ -358,6 +449,20 @@ export default function AddItem() {
                     catalog={catalog}
                 />
             )}
+
+            {/* Paste Modal */}
+            <PasteListModal
+                isOpen={showPasteModal}
+                onClose={() => setShowPasteModal(false)}
+                onProcess={handleProcessPaste}
+            />
+
+            {/* OCR Receipt Modal */}
+            <ScanReceiptModal
+                isOpen={showOCRModal}
+                onClose={() => setShowOCRModal(false)}
+                onProcess={handleProcessOCR}
+            />
         </div>
     );
 }

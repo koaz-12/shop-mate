@@ -8,10 +8,12 @@ import { useItems } from '@/hooks/useItems';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import EditItemModal from './EditItemModal';
+import ItemDetailModal from './ItemDetailModal'; // Nuevo
 import EmptyState from './EmptyState';
 import BulkActionsBar from './BulkActionsBar';
 import PantryItemSheet from './PantryItemSheet';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import toast from 'react-hot-toast';
 
 export default function ShoppingList() {
     const { items, household, currentList, activeView, setActiveView } = useStore();
@@ -23,6 +25,7 @@ export default function ShoppingList() {
 
     // UI State
     const [editingItem, setEditingItem] = useState<Item | null>(null);
+    const [detailItem, setDetailItem] = useState<Item | null>(null); // Nuevo Modal
     const [selectedPantryItem, setSelectedPantryItem] = useState<Item | null>(null);
     const [lastDeletedItem, setLastDeletedItem] = useState<Item | null>(null);
     const [showUndoToast, setShowUndoToast] = useState(false);
@@ -101,6 +104,43 @@ export default function ShoppingList() {
         setLastDeletedItem(null);
     };
 
+    // Share Logic
+    const handleShareList = async () => {
+        if (filteredItems.length === 0) {
+            toast.error('La lista está vacía');
+            return;
+        }
+
+        let shareText = `🛒 *Lista de Compras ShopMate*\n\n`;
+        sortedCategories.forEach(cat => {
+            shareText += `*${cat}*\n`;
+            groupedItems[cat].forEach(item => {
+                const qty = item.quantity && item.quantity !== '1' ? ` (${item.quantity})` : '';
+                shareText += `☐ ${item.name}${qty}\n`;
+            });
+            shareText += '\n';
+        });
+
+        const shareData = {
+            title: 'Mi Lista de Compras',
+            text: shareText
+        };
+
+        try {
+            if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(shareText);
+                toast.success('Lista copiada al portapapeles', { icon: '📋' });
+            }
+        } catch (err: any) {
+            if (err.name !== 'AbortError') {
+                await navigator.clipboard.writeText(shareText);
+                toast.success('Lista copiada al portapapeles', { icon: '📋' });
+            }
+        }
+    };
+
     // Bulk Handlers
     const handleToggleSelection = (id: string) => {
         const newSet = new Set(selectedItems);
@@ -174,6 +214,16 @@ export default function ShoppingList() {
                         <span className="hidden sm:inline">Despensa</span>
                     </button>
                 </div>
+
+                {activeView === 'shopping-list' && (
+                    <button
+                        onClick={handleShareList}
+                        className="w-14 flex items-center justify-center rounded-2xl transition-all shadow-sm bg-white text-emerald-500 hover:text-emerald-600 border border-slate-100"
+                        title="Compartir lista"
+                    >
+                        <Share2 size={20} />
+                    </button>
+                )}
 
                 <button
                     onClick={() => {
@@ -289,6 +339,7 @@ export default function ShoppingList() {
                                         isSelectionMode={isSelectionMode}
                                         isSelected={selectedItems.has(item.id)}
                                         onSelect={() => handleToggleSelection(item.id)}
+                                        onOpenDetails={(item) => setDetailItem(item)}
                                     />
                                 ))}
                             </div>
@@ -307,6 +358,14 @@ export default function ShoppingList() {
                     }}
                 />
             )}
+
+            {/* Item Detail Modal (Notes & Assignee) */}
+            <ItemDetailModal 
+                isOpen={!!detailItem}
+                item={detailItem}
+                onClose={() => setDetailItem(null)}
+                onSave={updateItemDetails}
+            />
 
             {/* Pantry Smart Sheet */}
             {selectedPantryItem && (

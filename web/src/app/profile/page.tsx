@@ -10,7 +10,7 @@ import {
     ArrowLeft, Camera, Check, X, PenLine,
     Phone, ShoppingCart, ShoppingBag,
     TrendingUp, Tag, Home, Users, ChevronRight,
-    Wallet, Palette, Shield, Loader2,
+    Wallet, Settings, Loader2,
 } from 'lucide-react';
 
 // ─── Preset Avatars ─────────────────────────────────────────────────────────
@@ -447,9 +447,8 @@ export default function ProfilePage() {
                 <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider px-5 pt-4 pb-2">Accesos rápidos</p>
                     {[
-                        { label: 'Mi Cartera',      icon: Wallet,  path: '/loyalty',    desc: 'Tarjetas de puntos y membresías', color: 'text-blue-500',   bg: 'bg-blue-50' },
-                        { label: 'Personalización', icon: Palette, path: '/customize',  desc: 'Tema y colores de la app',        color: 'text-violet-500', bg: 'bg-violet-50' },
-                        { label: 'Seguridad',       icon: Shield,  path: '/security',   desc: 'Contraseña y acceso',             color: 'text-rose-500',   bg: 'bg-rose-50' },
+                        { label: 'Mi Cartera', icon: Wallet,   path: '/loyalty',     desc: 'Tarjetas de puntos y membresías', color: 'text-blue-500',   bg: 'bg-blue-50' },
+                        { label: 'Ajustes',    icon: Settings, path: '/preferences', desc: 'Tema, colores, seguridad y datos', color: 'text-slate-500', bg: 'bg-slate-100' },
                     ].map(item => (
                         <button
                             key={item.path}

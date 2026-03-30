@@ -8,12 +8,9 @@ import { toast } from 'react-hot-toast';
 import {
     User,
     Wallet,
-    Palette,
-    Shield,
-    Download,
+    Settings,
     LogOut,
     ChevronDown,
-    RefreshCw,
 } from 'lucide-react';
 
 export default function Header({ title, subtitle }: { title?: string; subtitle?: string }) {
@@ -37,26 +34,6 @@ export default function Header({ title, subtitle }: { title?: string; subtitle?:
     const handleReconnect = () => {
         toast.loading('Reconectando...', { duration: 2000 });
         triggerRefresh();
-    };
-
-    const handleExportData = () => {
-        const { items, catalog, loyaltyCards, household } = useStore.getState();
-        const exportData = {
-            household: household?.name,
-            exportedAt: new Date().toISOString(),
-            items: items.filter(i => !i.deleted_at),
-            catalog,
-            loyaltyCards,
-        };
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `shopmate-backup-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success('Datos exportados');
-        setMenuOpen(false);
     };
 
     const handleLogout = async () => {
@@ -91,19 +68,9 @@ export default function Header({ title, subtitle }: { title?: string; subtitle?:
             onClick: () => { router.push('/loyalty'); setMenuOpen(false); },
         },
         {
-            label: 'Personalización',
-            icon: Palette,
-            onClick: () => { router.push('/customize'); setMenuOpen(false); },
-        },
-        {
-            label: 'Seguridad',
-            icon: Shield,
-            onClick: () => { router.push('/security'); setMenuOpen(false); },
-        },
-        {
-            label: 'Exportar Datos',
-            icon: Download,
-            onClick: handleExportData,
+            label: 'Ajustes',
+            icon: Settings,
+            onClick: () => { router.push('/preferences'); setMenuOpen(false); },
         },
     ];
 

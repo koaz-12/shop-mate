@@ -16,6 +16,7 @@ interface SwipeableListItemProps {
     isSelectionMode?: boolean;
     isSelected?: boolean;
     onSelect?: () => void;
+    onOpenDetails?: (item: Item) => void;
 }
 
 export default function SwipeableListItem({
@@ -27,7 +28,8 @@ export default function SwipeableListItem({
     onUpdate,
     isSelectionMode,
     isSelected,
-    onSelect
+    onSelect,
+    onOpenDetails
 }: SwipeableListItemProps) {
     const [startX, setStartX] = useState<number | null>(null);
     const [offsetX, setOffsetX] = useState(0);
@@ -227,12 +229,20 @@ export default function SwipeableListItem({
                 {/* Content */}
                 <div className="flex-1 min-w-0" onClick={handleClick}>
                     <div className="flex items-center gap-2">
-                        <p className={cn(
-                            "font-bold truncate text-base cursor-pointer hover:text-primary-600 transition-colors flex-1",
-                            activeView === 'pantry' && !isSelectionMode ? "text-slate-500 line-through" : "text-slate-900"
-                        )}>
-                            {item.name}
-                        </p>
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
+                            <p className={cn(
+                                "font-bold truncate text-base cursor-pointer hover:text-primary-600 transition-colors flex-1",
+                                activeView === 'pantry' && !isSelectionMode ? "text-slate-500 line-through" : "text-slate-900"
+                            )}>
+                                {item.name}
+                            </p>
+                            {/* Notes Badge Context */}
+                            {item.notes && !isSelectionMode && (
+                                <p className="text-[10px] text-slate-400 truncate mt-0.5 leading-tight max-w-[90%]" title={item.notes}>
+                                    📝 {item.notes}
+                                </p>
+                            )}
+                        </div>
 
                         <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                             {/* Price Badge */}
@@ -313,23 +323,40 @@ export default function SwipeableListItem({
                         {(() => {
                             const creator = members?.find(m => m.id === item.created_by);
                             const buyer = members?.find(m => m.id === item.bought_by);
-                            const displayUser = activeView === 'pantry' ? (buyer || creator) : creator;
-                            const tooltip = activeView === 'pantry'
-                                ? `Comprado por ${displayUser?.full_name || 'Desconocido'}`
-                                : `Pedido por ${displayUser?.full_name || 'Desconocido'}`;
-
-                            if (!displayUser || isSelectionMode) return null;
+                            const assigned = members?.find(m => m.id === item.assigned_to);
+                            
+                            // Mostrar asignado si existe, o seguir con la lógica anterior
+                            const displayUser = assigned || (activeView === 'pantry' ? (buyer || creator) : creator);
+                            
+                            const tooltip = assigned 
+                                ? `Responsable: ${displayUser?.full_name}`
+                                : activeView === 'pantry'
+                                    ? `Comprado por ${displayUser?.full_name || 'Desconocido'}`
+                                    : `Pedido por ${displayUser?.full_name || 'Desconocido'}`;
 
                             return (
-                                <div className="ml-2 h-6 w-6 rounded-full bg-indigo-100 ring-2 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0" title={tooltip}>
-                                    {displayUser.avatar_url ? (
-                                        <img src={displayUser.avatar_url} alt="User" className="h-full w-full object-cover" />
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (onOpenDetails && !isSelectionMode) onOpenDetails(item);
+                                    }}
+                                    className="ml-2 h-7 w-7 rounded-full bg-slate-50 border-2 border-dashed border-slate-300 shadow-sm flex items-center justify-center overflow-hidden shrink-0 transition-all hover:border-indigo-400 hover:ring-2 hover:ring-indigo-100" 
+                                    title={displayUser ? tooltip : 'Asignar o agregar notas'}
+                                >
+                                    {displayUser ? (
+                                        displayUser.avatar_url ? (
+                                            <img src={displayUser.avatar_url} alt="User" className="h-full w-full object-cover" />
+                                        ) : (
+                                            <span className="text-[10px] font-extrabold text-indigo-600 select-none">
+                                                {displayUser.full_name?.[0]?.toUpperCase() || '?'}
+                                            </span>
+                                        )
                                     ) : (
-                                        <span className="text-[10px] font-extrabold text-indigo-600 select-none">
-                                            {displayUser.full_name?.[0]?.toUpperCase() || '?'}
-                                        </span>
+                                        <div className="h-full w-full bg-slate-50 flex items-center justify-center">
+                                            <span className="text-[12px] font-bold text-slate-300">+</span>
+                                        </div>
                                     )}
-                                </div>
+                                </button>
                             );
                         })()}
                     </div>
