@@ -95,8 +95,22 @@ export const useStore = create<AppState>()(
             queueAction: (action) => set((state) => ({ pendingActions: [...state.pendingActions, action] })),
             removeAction: (id) => set((state) => ({ pendingActions: state.pendingActions.filter(a => a.id !== id) })),
             addItem: (item) => set((state) => {
-                const exists = state.items.some(i => i.id === item.id);
-                if (exists) return state;
+                // Primary dedup: same UUID
+                const sameId = state.items.some(i => i.id === item.id);
+                if (sameId) return state;
+
+                // Secondary dedup: if this is a Realtime echo of an item we JUST
+                // inserted (we replaced the temp with the real one), suppress the duplicate.
+                // We identify these as items with the same name+household+list created within 5s.
+                const isEcho = state.items.some(i =>
+                    i.name === item.name &&
+                    i.household_id === item.household_id &&
+                    i.list_id === item.list_id &&
+                    !i.deleted_at &&
+                    Math.abs(new Date(i.created_at).getTime() - new Date(item.created_at).getTime()) < 5000
+                );
+                if (isEcho) return state;
+
                 return { items: [item, ...state.items] };
             }),
             updateItem: (itemId, updates) =>

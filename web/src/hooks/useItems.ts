@@ -9,30 +9,45 @@ export function useItems() {
     const supabase = createClient();
 
     const addNewItem = useCallback(async (newItem: Partial<Item>) => {
-        const tempId = crypto.randomUUID();
-        // Ensure minimal required fields for local state
-        const itemWithId = {
+        const tempId = `temp_${crypto.randomUUID()}`;
+        const { items: currentItems, addItem: storeAddItem, removeItem: storeRemoveItem, updateItem: storeUpdateItem } = useStore.getState();
+
+        // Build the optimistic item for local display only — uses tempId
+        const optimisticItem = {
             ...newItem,
             id: tempId,
             created_at: new Date().toISOString(),
-            is_completed: false // Default
         } as Item;
 
-        // Optimistic
-        addItem(itemWithId);
+        // Optimistic: show immediately in the UI
+        addItem(optimisticItem);
+
+        // Build the payload WITHOUT the id field so Supabase generates a real UUID
+        const { id: _unused, ...payloadWithoutId } = optimisticItem;
 
         try {
-            // @ts-ignore
-            const { error } = await (supabase.from('items') as any).insert(itemWithId);
+            const { data, error } = await (supabase.from('items') as any)
+                .insert(payloadWithoutId)
+                .select()
+                .single();
+
             if (error) throw error;
+
+            if (data) {
+                // Replace the optimistic temp item with the real item from DB
+                // This ensures the item in our store has the correct UUID that other
+                // family members will also see via Realtime.
+                useStore.getState().removeItem(tempId);       // Remove temp
+                useStore.getState().addItem(data as Item);    // Add real
+            }
         } catch (e: any) {
             console.error('Offline / Error adding item:', e);
             toast('Guardado en cola (Sin conexión)', { icon: '📡' });
-            // Queue for retry
+            // Queue for retry — use payload without the temp ID as well
             queueAction({
                 id: crypto.randomUUID(),
                 type: 'ADD_ITEM',
-                payload: itemWithId,
+                payload: payloadWithoutId,
                 timestamp: Date.now(),
                 retryCount: 0
             });
@@ -122,7 +137,6 @@ export function useItems() {
     }, [updateItem, supabase, queueAction]);
 
     const duplicateItem = useCallback(async (originalItem: Item, quantity: string = "1") => {
-        // Check if item already exists in Shopping List (not pantry, same name)
         const existingListItem = items.find(i =>
             i.name.toLowerCase() === originalItem.name.toLowerCase() &&
             !i.in_pantry &&
@@ -130,7 +144,6 @@ export function useItems() {
         );
 
         if (existingListItem) {
-            // Merge Quantities
             const currentQty = parseInt(existingListItem.quantity || "1");
             const additionalQty = parseInt(quantity || "1");
 
@@ -142,7 +155,7 @@ export function useItems() {
             }
         }
 
-        // If not found or invalid quantity logic, create new
+        // Create new — no is_completed field
         await addNewItem({
             name: originalItem.name,
             category: originalItem.category,
@@ -150,7 +163,6 @@ export function useItems() {
             household_id: originalItem.household_id,
             list_id: originalItem.list_id,
             in_pantry: false,
-            is_completed: false,
             quantity: quantity,
             created_by: user?.id
         });
