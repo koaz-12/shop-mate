@@ -1,7 +1,9 @@
 export type Profile = {
     id: string;
     full_name: string | null;
-    avatar_url: string | null;
+    avatar_url: string | null; // URL de foto, OR 'preset:🐻' para avatares predefinidos
+    phone?: string | null;     // Opcional, visible solo al usuario
+    bio?: string | null;       // Descripción personal opcional
     updated_at: string;
 };
 

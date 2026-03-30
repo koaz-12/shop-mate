@@ -137,7 +137,16 @@ export default function Header({ title, subtitle }: { title?: string; subtitle?:
                         className="flex items-center gap-1.5 group"
                     >
                         <div className="h-9 w-9 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 transition-colors overflow-hidden border-2 border-slate-200 group-hover:border-primary-300 transition-all shadow-sm">
-                            {profile?.avatar_url ? (
+                            {profile?.avatar_url && profile.avatar_url.startsWith('preset:') ? (
+                                // Preset avatar: render emoji with gradient
+                                <span className="text-lg" role="img">
+                                    {{
+                                        bear: '🐻', fox: '🦊', panda: '🐼', lion: '🦁',
+                                        koala: '🐨', frog: '🐸', penguin: '🐧', cat: '🐱',
+                                        robot: '🤖', alien: '👽', rocket: '🚀', star: '⭐',
+                                    }[profile.avatar_url.replace('preset:', '')] || initial}
+                                </span>
+                            ) : profile?.avatar_url ? (
                                 <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
                             ) : (
                                 <span className="text-slate-600 font-bold text-sm">{initial}</span>
